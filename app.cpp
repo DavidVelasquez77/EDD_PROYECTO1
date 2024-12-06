@@ -7,11 +7,28 @@ using namespace std;
 // Variables globales para almacenar la sesión del usuario
 string nombreUsuario, contrasenia, departamento, empresa;
 
+// Función para generar un carácter aleatorio
+char generarCaracterAleatorio() {
+    const string caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    return caracteres[rand() % caracteres.length()];
+}
+
+// Función para generar un ID único de 15 caracteres alfanuméricos
+string generarIDActivo() {
+    string id;
+    
+    for (int i = 0; i < 15; i++) {
+        id += generarCaracterAleatorio();
+    }
+    
+    return id;
+}
+
 // Función para realizar el inicio de sesión
 bool iniciarSesion() {
     cout << "Ingresar Nombre de Usuario: ";
     cin >> nombreUsuario;
-    cout << "Ingresar Contraseña: ";
+    cout << "Ingresar Contrasena: ";
     cin >> contrasenia;
 
     // Verificar si es un usuario administrador
@@ -47,8 +64,23 @@ void menuUsuario() {
 
         switch (opcion) {
             case 1:
-                // Agregar activo
-                break;
+            {
+                string nuevoActivo, descripcionActivo, idActivo;
+                
+                cout << "Ingrese el nombre del nuevo activo: " << endl;
+                cin.ignore(); // Limpiar el buffer de entrada
+                getline(cin, nuevoActivo);
+                
+                cout << "Ingrese la descripcion del nuevo activo: " << endl;
+                getline(cin, descripcionActivo);
+                
+                idActivo = generarIDActivo();
+                
+                cout << "El ID unico del nuevo activo es: " << idActivo << endl;
+                
+                // Aquí puedes almacenar el nuevo activo con su ID, nombre y descripción
+            }
+            break;
             case 2:
                 // Eliminar activo
                 break;
@@ -68,7 +100,7 @@ void menuUsuario() {
                 // Cerrar sesión
                 break;
             default:
-                cout << "Opción inválida. Intente de nuevo." << endl;
+                cout << "Opcion invalida, intente de nuevo" << endl;
         }
     } while (opcion != 7);
 }
