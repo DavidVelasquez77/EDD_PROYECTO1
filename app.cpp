@@ -4,9 +4,9 @@
 
 using namespace std;
 
-// Variables globales para almacenar la sesión del usuario
+// Variables globales para almacenar la sesion del usuario
 
-string nombreUsuario, contrasenia, departamento, empresa;
+string nombreUsuario, contrasena, departamento, empresa;
 
 // Nodo para el árbol AVL
 struct NodoAVL {
@@ -138,20 +138,20 @@ string generarIDActivo() {
 
 MatrizDispersa matrizUsuarios; 
 
-// Función para iniciar sesión
+// Función para iniciar sesion
 
-// Función para iniciar sesión
+// Función para iniciar sesion
 bool iniciarSesion() {
     cout << "Ingresar Nombre de Usuario: ";
     cin >> nombreUsuario;
     cout << "Ingresar Contrasena: ";
-    cin >> contrasenia;
+    cin >> contrasena;
 
     // Verificar si es un usuario administrador
-    if (nombreUsuario == "ADMINISTRADOR" && contrasenia == "ADMINISTRADOR") {
+    if (nombreUsuario == "ADMINISTRADOR" && contrasena == "ADMINISTRADOR") {
         departamento = "N/A";
         empresa = "N/A";
-        return true; // Inicia sesión como administrador
+        return true; // Inicia sesion como administrador
     } else {
         cout << "Ingresar Departamento: ";
         cin >> departamento;
@@ -160,12 +160,12 @@ bool iniciarSesion() {
 
         NodoMatriz* nodoUsuario = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
 
-        if (nodoUsuario != nullptr && nodoUsuario->contrasena == contrasenia) {
-            cout << "Inicio de sesión exitoso. Bienvenido, " << nodoUsuario->nombreUsuario << "!\n";
-            return false; // Inicia sesión como usuario normal
+        if (nodoUsuario != nullptr && nodoUsuario->contrasena == contrasena) {
+            cout << "Inicio de sesion exitoso. Bienvenido, " << nodoUsuario->nombreUsuario << "!\n";
+            return false; // Inicia sesion como usuario normal
         } else {
-            cout << "Error: Usuario o contraseña incorrectos.\n";
-            return false; // No permite iniciar sesión
+            cout << "Error: Usuario o contrasena incorrectos.\n";
+            return false; // No permite iniciar sesion
         }
     }
 }
@@ -177,7 +177,7 @@ void registrarUsuario() {
     cout << "Ingrese el nombre de usuario: ";
     cin >> usuario;
 
-    cout << "Ingrese la contraseña: ";
+    cout << "Ingrese la contrasena: ";
     cin >> pass;
 
     cout << "Ingrese el departamento: ";
@@ -190,7 +190,7 @@ void registrarUsuario() {
 }
 
 
-// Menú de usuario normal
+// menu de usuario normal
 void menuUsuario() {
     int opcion;
     do {
@@ -242,7 +242,7 @@ void menuUsuario() {
                 // Mostrar mis activos rentados
                 break;
             case 7:
-                // Cerrar sesión
+                // Cerrar sesion
                 break;
             default:
                 cout << "Opcion invalida, intente de nuevo" << endl;
@@ -250,7 +250,7 @@ void menuUsuario() {
     } while (opcion != 7);
 }
 
-// Menú de usuario administrador
+// menu de usuario administrador
 void menuAdministrador() {
     int opcion;
     do {
@@ -265,6 +265,7 @@ void menuAdministrador() {
         cout << "6. Reporte Activos de un Usuario" << endl;
         cout << "7. Activos rentados por un Usuario" << endl;
         cout << "8. Ordenar Transacciones" << endl;
+        cout << "9. Salir" << endl; // Nueva opción para salir
         cout << "Ingresar Opcion: ";
         cin >> opcion;
 
@@ -293,10 +294,13 @@ void menuAdministrador() {
             case 8:
                 // Ordenar transacciones
                 break;
+            case 9:
+                cout << "Regresando al menu principal...\n";
+                return; // Salir del menu y regresar al menu principal
             default:
                 cout << "Opcion invalida. Intente de nuevo." << endl;
         }
-    } while (opcion != 8);
+    } while (true);
 }
 
 int main() {
@@ -305,19 +309,24 @@ int main() {
         cout << "=================================================" << endl;
         cout << "====Bienvenido al sistema de renta de activos====" << endl;
         cout << "=================================================" << endl;
-        cout << "1. Iniciar Sesion" << endl;
+        cout << "1. Iniciar sesion" << endl;
         cout << "2. Salir" << endl;
         cout << "Ingresar Opcion: ";
         cin >> opcion;
 
         switch (opcion) {
-            case 1:
-                if (iniciarSesion()) {
+            case 1: {
+                bool esAdmin = iniciarSesion();
+                if (esAdmin) {
                     menuAdministrador();
-                } else {
+                } else if (!esAdmin && matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario) != nullptr) {
                     menuUsuario();
+                } else {
+                    // No muestra menu si las credenciales no son válidas
+                    cout << "No se pudo iniciar sesion. Regresando al menu principal...\n";
                 }
                 break;
+            }
             case 2:
                 cout << "Saliendo del programa..." << endl;
                 break;
