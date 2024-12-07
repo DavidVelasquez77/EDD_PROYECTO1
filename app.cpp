@@ -139,8 +139,6 @@ string generarIDActivo() {
 MatrizDispersa matrizUsuarios; 
 
 // Función para iniciar sesion
-
-// Función para iniciar sesion
 bool iniciarSesion() {
     cout << "Ingresar Nombre de Usuario: ";
     cin >> nombreUsuario;
@@ -148,7 +146,7 @@ bool iniciarSesion() {
     cin >> contrasena;
 
     // Verificar si es un usuario administrador
-    if (nombreUsuario == "ADMINISTRADOR" && contrasena == "ADMINISTRADOR") {
+    if (nombreUsuario == "admin" && contrasena == "admin") {
         departamento = "N/A";
         empresa = "N/A";
         return true; // Inicia sesion como administrador
@@ -173,6 +171,9 @@ bool iniciarSesion() {
 // Función para registrar usuarios
 void registrarUsuario() {
     string usuario, pass, depto, emp;
+    cout << "---------------------------------------------------" << endl;
+    cout << "----------------Registrar Usuario-------------------" << endl;
+    cout << "---------------------------------------------------" << endl;
 
     cout << "Ingrese el nombre de usuario: ";
     cin >> usuario;
@@ -189,6 +190,22 @@ void registrarUsuario() {
     matrizUsuarios.insertarUsuario(depto, emp, usuario, pass);
 }
 
+// Función para agregar un activo
+void agregarActivo() {
+    string nuevoActivo, descripcionActivo, idActivo;
+    
+    cout << "Ingrese el nombre del nuevo activo: " << endl;
+    cin.ignore(); // Limpiar el buffer de entrada
+    getline(cin, nuevoActivo);
+    
+    cout << "Ingrese la descripcion del nuevo activo: " << endl;
+    getline(cin, descripcionActivo);
+    
+    idActivo = generarIDActivo(); // Generar un ID único para el activo
+    
+    cout << "El ID unico del nuevo activo es: " << idActivo << endl;
+    
+}
 
 // menu de usuario normal
 void menuUsuario() {
@@ -210,20 +227,7 @@ void menuUsuario() {
         switch (opcion) {
             case 1:
             {
-                string nuevoActivo, descripcionActivo, idActivo;
-                
-                cout << "Ingrese el nombre del nuevo activo: " << endl;
-                cin.ignore(); // Limpiar el buffer de entrada
-                getline(cin, nuevoActivo);
-                
-                cout << "Ingrese la descripcion del nuevo activo: " << endl;
-                getline(cin, descripcionActivo);
-                
-                idActivo = generarIDActivo();
-                
-                cout << "El ID unico del nuevo activo es: " << idActivo << endl;
-                
-                // Aquí puedes almacenar el nuevo activo con su ID, nombre y descripción
+            agregarActivo();   
             }
             break;
             case 2:
