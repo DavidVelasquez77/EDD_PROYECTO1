@@ -5,12 +5,125 @@
 using namespace std;
 
 // Variables globales para almacenar la sesión del usuario
+
 string nombreUsuario, contrasenia, departamento, empresa;
+
+// Nodo para el árbol AVL
+struct NodoAVL {
+    string idActivo;
+    string descripcion;
+    NodoAVL* izquierda;
+    NodoAVL* derecha;
+    int altura;
+};
+
+// Nodo para la matriz dispersa
+struct NodoMatriz {
+    string nombreUsuario;
+    string contrasena;
+    NodoAVL* arbolAVL; // Árbol AVL para almacenar activos
+    NodoMatriz* derecha;
+    NodoMatriz* abajo;
+
+    NodoMatriz(string usuario, string pass)
+        : nombreUsuario(usuario), contrasena(pass),
+        arbolAVL(nullptr), derecha(nullptr), abajo(nullptr) {}
+};
+
+// Clase para manejar la matriz dispersa
+class MatrizDispersa {
+private:
+    NodoMatriz* cabeza;
+
+public:
+    MatrizDispersa() : cabeza(nullptr) {}
+
+    // Insertar un usuario en la matriz
+    void insertarUsuario(string departamento, string empresa, string usuario, string contrasena) {
+        NodoMatriz* nodoDepartamento = obtenerOInsertarEncabezado(departamento, true);
+        NodoMatriz* nodoEmpresa = obtenerOInsertarEncabezado(empresa, false, nodoDepartamento);
+
+        // Crear el nodo del usuario si no existe
+        NodoMatriz* actual = nodoEmpresa->abajo;
+        while (actual != nullptr) {
+            if (actual->nombreUsuario == usuario) {
+                cout << "Error: El usuario ya existe en esta empresa y departamento.\n";
+                return;
+            }
+            actual = actual->abajo;
+        }
+
+        NodoMatriz* nuevoUsuario = new NodoMatriz(usuario, contrasena);
+        nuevoUsuario->abajo = nodoEmpresa->abajo;
+        nodoEmpresa->abajo = nuevoUsuario;
+
+        cout << "Usuario registrado exitosamente en la matriz dispersa.\n";
+    }
+
+    // Buscar un usuario en la matriz
+    NodoMatriz* buscarUsuario(string departamento, string empresa, string usuario) {
+        NodoMatriz* nodoDepartamento = buscarEncabezado(departamento, true);
+        if (!nodoDepartamento) return nullptr;
+
+        NodoMatriz* nodoEmpresa = buscarEncabezado(empresa, false, nodoDepartamento);
+        if (!nodoEmpresa) return nullptr;
+
+        NodoMatriz* actual = nodoEmpresa->abajo;
+        while (actual != nullptr) {
+            if (actual->nombreUsuario == usuario) {
+                return actual;
+            }
+            actual = actual->abajo;
+        }
+
+        return nullptr;
+    }
+
+private:
+    // Obtener o insertar un encabezado (horizontal o vertical)
+    NodoMatriz* obtenerOInsertarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
+        NodoMatriz** referencia = esHorizontal ? &cabeza : &base->derecha;
+
+        while (*referencia != nullptr && (*referencia)->nombreUsuario < nombre) {
+            referencia = esHorizontal ? &((*referencia)->derecha) : &((*referencia)->abajo);
+        }
+
+        if (*referencia == nullptr || (*referencia)->nombreUsuario != nombre) {
+            NodoMatriz* nuevoEncabezado = new NodoMatriz(nombre, "");
+            nuevoEncabezado->derecha = esHorizontal ? *referencia : nullptr;
+            nuevoEncabezado->abajo = esHorizontal ? nullptr : *referencia;
+            *referencia = nuevoEncabezado;
+        }
+
+        return *referencia;
+    }
+
+    // Buscar un encabezado (horizontal o vertical)
+    NodoMatriz* buscarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
+        NodoMatriz* actual = esHorizontal ? cabeza : base->derecha;
+        while (actual != nullptr) {
+            if (actual->nombreUsuario == nombre) {
+                return actual;
+            }
+            actual = esHorizontal ? actual->derecha : actual->abajo;
+        }
+        return nullptr;
+    }
+};
 
 // Función para generar un carácter aleatorio
 char generarCaracterAleatorio() {
-    const string caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    return caracteres[rand() % caracteres.length()];
+    //generan números pseudoaleatorios
+    static unsigned long seed1 = 1;
+    static unsigned long seed2 = 0;
+    const std::string caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    
+    // Combinar dos semillas
+    seed1 = (seed1 * 24271 + 3522483246);
+    seed2 = (seed2 * 2143618259 + 12345);
+    
+    unsigned long combinedSeed = seed1 ^ seed2;
+    return caracteres[combinedSeed % caracteres.length()];
 }
 
 // Función para generar un ID único de 15 caracteres alfanuméricos
@@ -20,11 +133,14 @@ string generarIDActivo() {
     for (int i = 0; i < 15; i++) {
         id += generarCaracterAleatorio();
     }
-    
     return id;
 }
 
-// Función para realizar el inicio de sesión
+MatrizDispersa matrizUsuarios; 
+
+// Función para iniciar sesión
+
+// Función para iniciar sesión
 bool iniciarSesion() {
     cout << "Ingresar Nombre de Usuario: ";
     cin >> nombreUsuario;
@@ -35,15 +151,44 @@ bool iniciarSesion() {
     if (nombreUsuario == "ADMINISTRADOR" && contrasenia == "ADMINISTRADOR") {
         departamento = "N/A";
         empresa = "N/A";
-        return true;
+        return true; // Inicia sesión como administrador
     } else {
         cout << "Ingresar Departamento: ";
         cin >> departamento;
         cout << "Ingresar Empresa: ";
         cin >> empresa;
-        return false;
+
+        NodoMatriz* nodoUsuario = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
+
+        if (nodoUsuario != nullptr && nodoUsuario->contrasena == contrasenia) {
+            cout << "Inicio de sesión exitoso. Bienvenido, " << nodoUsuario->nombreUsuario << "!\n";
+            return false; // Inicia sesión como usuario normal
+        } else {
+            cout << "Error: Usuario o contraseña incorrectos.\n";
+            return false; // No permite iniciar sesión
+        }
     }
 }
+
+// Función para registrar usuarios
+void registrarUsuario() {
+    string usuario, pass, depto, emp;
+
+    cout << "Ingrese el nombre de usuario: ";
+    cin >> usuario;
+
+    cout << "Ingrese la contraseña: ";
+    cin >> pass;
+
+    cout << "Ingrese el departamento: ";
+    cin >> depto;
+
+    cout << "Ingrese la empresa: ";
+    cin >> emp;
+
+    matrizUsuarios.insertarUsuario(depto, emp, usuario, pass);
+}
+
 
 // Menú de usuario normal
 void menuUsuario() {
@@ -125,7 +270,7 @@ void menuAdministrador() {
 
         switch (opcion) {
             case 1:
-                // Registrar usuario
+                registrarUsuario();
                 break;
             case 2:
                 // Reporte matriz dispersa
