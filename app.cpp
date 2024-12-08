@@ -187,6 +187,99 @@ NodoAVL* insertarEnAVL(NodoAVL* nodo, string id, string nombre, string descripci
     return nodo;
 }
 
+MatrizDispersa matrizUsuarios; 
+
+// Función auxiliar para encontrar el nodo con el valor mínimo en un árbol AVL
+NodoAVL* encontrarMinimo(NodoAVL* nodo) {
+    while (nodo->izquierda != nullptr)
+        nodo = nodo->izquierda;
+    return nodo;
+}
+
+// Función para eliminar un nodo del árbol AVL
+NodoAVL* eliminarNodoAVL(NodoAVL* raiz, string id) {
+    if (!raiz)
+        return raiz;
+
+    if (id < raiz->idActivo)
+        raiz->izquierda = eliminarNodoAVL(raiz->izquierda, id);
+    else if (id > raiz->idActivo)
+        raiz->derecha = eliminarNodoAVL(raiz->derecha, id);
+    else {
+        // Nodo encontrado
+        if (!raiz->izquierda || !raiz->derecha) {
+            NodoAVL* temp = raiz->izquierda ? raiz->izquierda : raiz->derecha;
+            delete raiz;
+            return temp;
+        } else {
+            // Nodo con dos hijos
+            NodoAVL* temp = encontrarMinimo(raiz->derecha);
+            raiz->idActivo = temp->idActivo;
+            raiz->nombreActivo = temp->nombreActivo;
+            raiz->descripcion = temp->descripcion;
+            raiz->derecha = eliminarNodoAVL(raiz->derecha, temp->idActivo);
+        }
+    }
+
+    // Actualizar altura y balancear
+    raiz->altura = 1 + max(obtenerAltura(raiz->izquierda), obtenerAltura(raiz->derecha));
+    int balance = obtenerBalance(raiz);
+
+    if (balance > 1 && obtenerBalance(raiz->izquierda) >= 0)
+        return rotarDerecha(raiz);
+    if (balance > 1 && obtenerBalance(raiz->izquierda) < 0) {
+        raiz->izquierda = rotarIzquierda(raiz->izquierda);
+        return rotarDerecha(raiz);
+    }
+    if (balance < -1 && obtenerBalance(raiz->derecha) <= 0)
+        return rotarIzquierda(raiz);
+    if (balance < -1 && obtenerBalance(raiz->derecha) > 0) {
+        raiz->derecha = rotarDerecha(raiz->derecha);
+        return rotarIzquierda(raiz);
+    }
+
+    return raiz;
+}
+
+// Función para mostrar los activos de un árbol AVL en orden
+void mostrarActivosAVL(NodoAVL* nodo) {
+    if (!nodo)
+        return;
+
+    mostrarActivosAVL(nodo->izquierda);
+    cout << ">>ID: " << nodo->idActivo << "; Nombre = " << nodo->nombreActivo
+         << "; Descripcion: " << nodo->descripcion << endl;
+    mostrarActivosAVL(nodo->derecha);
+}
+
+// Función para eliminar un activo del usuario
+void eliminarActivo() {
+    NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
+
+    if (!usuarioActual || !usuarioActual->arbolAVL) {
+        cout << "No tienes activos registrados para eliminar.\n";
+        return;
+    }
+
+    cout << "Lista de activos disponibles:\n";
+    mostrarActivosAVL(usuarioActual->arbolAVL);
+
+    cout << "Ingrese el ID del activo que desea eliminar: ";
+    string idActivoEliminar;
+    cin >> idActivoEliminar;
+
+    // Intentar eliminar el nodo del árbol AVL
+    NodoAVL* arbolModificado = eliminarNodoAVL(usuarioActual->arbolAVL, idActivoEliminar);
+
+    if (arbolModificado != usuarioActual->arbolAVL) {
+        usuarioActual->arbolAVL = arbolModificado;
+        cout << "Activo eliminado exitosamente.\n";
+    } else {
+        cout << "Error: No se encontró un activo con el ID especificado.\n";
+    }
+}
+
+
 // Función para generar un carácter aleatorio
 char generarCaracterAleatorio() {
     //generan números pseudoaleatorios
@@ -212,7 +305,7 @@ string generarIDActivo() {
     return id;
 }
 
-MatrizDispersa matrizUsuarios; 
+
 
 // Función para iniciar sesion
 bool iniciarSesion() {
@@ -313,11 +406,11 @@ void menuUsuario() {
         switch (opcion) {
             case 1:
             {
-            agregarActivo();   
+                agregarActivo();   
             }
             break;
             case 2:
-                // Eliminar activo
+                eliminarActivo();
                 break;
             case 3:
                 // Modificar activo
