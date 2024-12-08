@@ -11,6 +11,7 @@ string nombreUsuario, contrasena, departamento, empresa;
 // Nodo para el árbol AVL
 struct NodoAVL {
     string idActivo;
+    string nombreActivo; 
     string descripcion;
     NodoAVL* izquierda;
     NodoAVL* derecha;
@@ -111,6 +112,81 @@ private:
     }
 };
 
+NodoAVL* crearNodoAVL(string id, string nombre, string descripcion) {
+    NodoAVL* nuevoNodo = new NodoAVL();
+    nuevoNodo->idActivo = id;
+    nuevoNodo->nombreActivo = nombre; // Asignar nombre del activo
+    nuevoNodo->descripcion = descripcion;
+    nuevoNodo->izquierda = nullptr;
+    nuevoNodo->derecha = nullptr;
+    nuevoNodo->altura = 1; // Altura inicial del nodo
+    return nuevoNodo;
+}
+
+int obtenerAltura(NodoAVL* nodo) {
+    return nodo ? nodo->altura : 0;
+}
+
+int obtenerBalance(NodoAVL* nodo) {
+    return nodo ? obtenerAltura(nodo->izquierda) - obtenerAltura(nodo->derecha) : 0;
+}
+
+NodoAVL* rotarDerecha(NodoAVL* y) {
+    NodoAVL* x = y->izquierda;
+    NodoAVL* T2 = x->derecha;
+
+    x->derecha = y;
+    y->izquierda = T2;
+
+    y->altura = max(obtenerAltura(y->izquierda), obtenerAltura(y->derecha)) + 1;
+    x->altura = max(obtenerAltura(x->izquierda), obtenerAltura(x->derecha)) + 1;
+
+    return x;
+}
+
+NodoAVL* rotarIzquierda(NodoAVL* x) {
+    NodoAVL* y = x->derecha;
+    NodoAVL* T2 = y->izquierda;
+
+    y->izquierda = x;
+    x->derecha = T2;
+
+    x->altura = max(obtenerAltura(x->izquierda), obtenerAltura(x->derecha)) + 1;
+    y->altura = max(obtenerAltura(y->izquierda), obtenerAltura(y->derecha)) + 1;
+
+    return y;
+}
+
+NodoAVL* insertarEnAVL(NodoAVL* nodo, string id, string nombre, string descripcion) {
+    if (!nodo)
+        return crearNodoAVL(id, nombre, descripcion);
+
+    if (id < nodo->idActivo)
+        nodo->izquierda = insertarEnAVL(nodo->izquierda, id, nombre, descripcion);
+    else if (id > nodo->idActivo)
+        nodo->derecha = insertarEnAVL(nodo->derecha, id, nombre, descripcion);
+    else
+        return nodo; // IDs duplicados no se permiten
+
+    nodo->altura = 1 + max(obtenerAltura(nodo->izquierda), obtenerAltura(nodo->derecha));
+    int balance = obtenerBalance(nodo);
+
+    if (balance > 1 && id < nodo->izquierda->idActivo)
+        return rotarDerecha(nodo);
+    if (balance < -1 && id > nodo->derecha->idActivo)
+        return rotarIzquierda(nodo);
+    if (balance > 1 && id > nodo->izquierda->idActivo) {
+        nodo->izquierda = rotarIzquierda(nodo->izquierda);
+        return rotarDerecha(nodo);
+    }
+    if (balance < -1 && id < nodo->derecha->idActivo) {
+        nodo->derecha = rotarDerecha(nodo->derecha);
+        return rotarIzquierda(nodo);
+    }
+
+    return nodo;
+}
+
 // Función para generar un carácter aleatorio
 char generarCaracterAleatorio() {
     //generan números pseudoaleatorios
@@ -192,20 +268,30 @@ void registrarUsuario() {
 
 // Función para agregar un activo
 void agregarActivo() {
-    string nuevoActivo, descripcionActivo, idActivo;
-    
-    cout << "Ingrese el nombre del nuevo activo: " << endl;
+    string nombreActivo, descripcionActivo, idActivo;
+
+    cout << "Ingrese el nombre del nuevo activo: ";
     cin.ignore(); // Limpiar el buffer de entrada
-    getline(cin, nuevoActivo);
-    
-    cout << "Ingrese la descripcion del nuevo activo: " << endl;
+    getline(cin, nombreActivo);
+
+    cout << "Ingrese la descripcion del nuevo activo: ";
     getline(cin, descripcionActivo);
-    
+
     idActivo = generarIDActivo(); // Generar un ID único para el activo
-    
     cout << "El ID unico del nuevo activo es: " << idActivo << endl;
-    
+
+    NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
+
+    if (!usuarioActual) {
+        cout << "Error: Usuario no encontrado. No se puede agregar el activo.\n";
+        return;
+    }
+
+    // Insertar el activo en el árbol AVL del usuario
+    usuarioActual->arbolAVL = insertarEnAVL(usuarioActual->arbolAVL, idActivo, nombreActivo, descripcionActivo);
+    cout << "Activo agregado exitosamente.\n";
 }
+
 
 // menu de usuario normal
 void menuUsuario() {
