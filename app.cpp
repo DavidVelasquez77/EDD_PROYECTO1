@@ -412,6 +412,62 @@ void agregarActivo() {
     cout << "Activo agregado exitosamente.\n";
 }
 
+void modificarActivo() {
+    NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
+
+    if (!usuarioActual || !usuarioActual->arbolAVL) {
+        cout << "No tienes activos registrados para modificar.\n";
+        return;
+    }
+
+    // Mostrar la lista de activos
+    cout << "Lista de activos disponibles:\n";
+    mostrarActivosAVL(usuarioActual->arbolAVL);
+
+    // Pedir al usuario el ID del activo a modificar
+    cout << "Ingrese el ID del activo que desea modificar: ";
+    string idActivoModificar;
+    cin >> idActivoModificar;
+
+    // Buscar el activo en el árbol AVL
+    NodoAVL* actual = usuarioActual->arbolAVL;
+    NodoAVL* activoEncontrado = nullptr;
+
+    while (actual != nullptr && activoEncontrado == nullptr) {
+        if (idActivoModificar == actual->idActivo) {
+            activoEncontrado = actual;
+        } else if (idActivoModificar < actual->idActivo) {
+            actual = actual->izquierda;
+        } else {
+            actual = actual->derecha;
+        }
+    }
+
+    // Validar si el activo fue encontrado
+    if (activoEncontrado) {
+        cout << "\nActivo seleccionado:\n";
+        cout << ">> ID: " << activoEncontrado->idActivo << "\n";
+        cout << ">> Nombre: " << activoEncontrado->nombreActivo << "\n";
+        cout << ">> Descripción actual: " << activoEncontrado->descripcion << "\n";
+
+        // Pedir la nueva descripción
+        cout << "Ingrese la nueva descripcion para este activo: ";
+        cin.ignore(); // Limpiar el buffer
+        string nuevaDescripcion;
+        getline(cin, nuevaDescripcion);
+
+        // Actualizar la descripción del activo
+        activoEncontrado->descripcion = nuevaDescripcion;
+
+        // Confirmar la modificación
+        cout << "\n------Descripcion modificada exitosamente------\n";
+        cout << ">> ID: " << activoEncontrado->idActivo << "\n";
+        cout << ">> Nombre: " << activoEncontrado->nombreActivo << "\n";
+        cout << ">> Nueva Descripcion: " << activoEncontrado->descripcion << "\n";
+    } else {
+        cout << "Error: No se encontró un activo con el ID especificado.\n";
+    }
+}
 
 // menu de usuario normal
 void menuUsuario() {
@@ -440,7 +496,7 @@ void menuUsuario() {
                 eliminarActivo();
                 break;
             case 3:
-                // Modificar activo
+                modificarActivo();
                 break;
             case 4:
                 // Rentar activo
