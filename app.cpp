@@ -247,7 +247,7 @@ void mostrarActivosAVL(NodoAVL* nodo) {
         return;
 
     mostrarActivosAVL(nodo->izquierda);
-    cout << ">>ID: " << nodo->idActivo << "; Nombre = " << nodo->nombreActivo
+    cout << ">> ID: " << nodo->idActivo << "; Nombre = " << nodo->nombreActivo
          << "; Descripcion: " << nodo->descripcion << endl;
     mostrarActivosAVL(nodo->derecha);
 }
@@ -268,14 +268,41 @@ void eliminarActivo() {
     string idActivoEliminar;
     cin >> idActivoEliminar;
 
+    // Guardar la información del activo antes de eliminarlo
+    string nombreActivoEliminado;
+    string descripcionActivoEliminado;
+    
+    // Buscar el activo y guardar su información
+    NodoAVL* actual = usuarioActual->arbolAVL;
+    bool encontrado = false;
+    
+    while (actual != nullptr && !encontrado) {
+        if (idActivoEliminar == actual->idActivo) {
+            nombreActivoEliminado = actual->nombreActivo;
+            descripcionActivoEliminado = actual->descripcion;
+            encontrado = true;
+        } else if (idActivoEliminar < actual->idActivo) {
+            actual = actual->izquierda;
+        } else {
+            actual = actual->derecha;
+        }
+    }
+
     // Intentar eliminar el nodo del árbol AVL
     NodoAVL* arbolModificado = eliminarNodoAVL(usuarioActual->arbolAVL, idActivoEliminar);
 
-    if (arbolModificado != usuarioActual->arbolAVL) {
+    if (arbolModificado != usuarioActual->arbolAVL || encontrado) {
         usuarioActual->arbolAVL = arbolModificado;
-        cout << "Activo eliminado exitosamente.\n";
+        
+        cout << "---------------------------------------------------" << endl;
+        cout << "-------------- Eliminando Activo ------------------" << endl;
+        cout << "---------------------------------------------------" << endl;
+        cout << ">> Activo Eliminado;\n";
+        cout << ">> ID = " << idActivoEliminar << "\n";
+        cout << ">> Nombre = " << nombreActivoEliminado << "\n";
+        cout << ">> descripcion = " << descripcionActivoEliminado << "\n\n";
     } else {
-        cout << "Error: No se encontró un activo con el ID especificado.\n";
+        cout << "Error: No se encontro un activo con el ID especificado.\n";
     }
 }
 
