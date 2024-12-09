@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <limits>
+#include <ctime>
 
 using namespace std;
 
@@ -33,7 +34,7 @@ struct NodoMatriz {
 
 // Clase para manejar la matriz dispersa
 class MatrizDispersa {
-private:
+public:
     NodoMatriz* cabeza;
 
 public:
@@ -241,6 +242,208 @@ NodoAVL* eliminarNodoAVL(NodoAVL* raiz, string id) {
     return raiz;
 }
 
+// Estructura para el nodo de la lista circular de transacciones
+struct NodoTransaccion {
+    string idTransaccion;
+    string idActivo;
+    string usuario;
+    string departamento;
+    string empresa;
+    int diasRenta;
+    time_t fechaRenta;
+    NodoTransaccion* siguiente;
+    NodoTransaccion* anterior;
+
+    NodoTransaccion(string idTrans, string idAct, string user, string depto, 
+                    string emp, int dias) 
+        : idTransaccion(idTrans), idActivo(idAct), usuario(user), 
+          departamento(depto), empresa(emp), diasRenta(dias) {
+        time(&fechaRenta);
+        time(&fechaRenta);
+        siguiente = anterior = nullptr;
+    }
+};
+
+// Clase para manejar la lista circular de transacciones
+class ListaTransacciones {
+private:
+    NodoTransaccion* cabeza;
+    
+public:
+    ListaTransacciones() : cabeza(nullptr) {}
+
+    void insertarTransaccion(string idTrans, string idAct, string user, 
+                           string depto, string emp, int dias) {
+        NodoTransaccion* nuevo = new NodoTransaccion(idTrans, idAct, user, 
+                                                    depto, emp, dias);
+
+        if (!cabeza) {
+            cabeza = nuevo;
+            nuevo->siguiente = nuevo;
+            nuevo->anterior = nuevo;
+            return;
+        }
+
+        // Buscar la posición correcta para insertar ordenadamente por idTransaccion
+        NodoTransaccion* actual = cabeza;
+        do {
+            if (nuevo->idTransaccion < actual->idTransaccion) {
+                // Insertar antes del actual
+                nuevo->siguiente = actual;
+                nuevo->anterior = actual->anterior;
+                actual->anterior->siguiente = nuevo;
+                actual->anterior = nuevo;
+                if (actual == cabeza) {
+                    cabeza = nuevo;
+                }
+                return;
+            }
+            actual = actual->siguiente;
+        } while (actual != cabeza);
+
+        // Si llegamos aquí, insertar al final
+        nuevo->siguiente = cabeza;
+        nuevo->anterior = cabeza->anterior;
+        cabeza->anterior->siguiente = nuevo;
+        cabeza->anterior = nuevo;
+    }
+
+    void mostrarTransacciones() {
+        if (!cabeza) {
+            cout << "No hay transacciones registradas.\n";
+            return;
+        }
+
+        NodoTransaccion* actual = cabeza;
+        do {
+            cout << "\n-------- Transaccion --------\n";
+            cout << "ID Transaccion: " << actual->idTransaccion << endl;
+            cout << "ID Activo: " << actual->idActivo << endl;
+            cout << "Usuario: " << actual->usuario << endl;
+            cout << "Departamento: " << actual->departamento << endl;
+            cout << "Empresa: " << actual->empresa << endl;
+            cout << "Dias de renta: " << actual->diasRenta << endl;
+            cout << "Fecha de renta: " << ctime(&actual->fechaRenta);
+            actual = actual->siguiente;
+        } while (actual != cabeza);
+    }
+};
+
+// Variable global para manejar las transacciones
+ListaTransacciones listaTransacciones;
+
+// Función para mostrar los activos de un árbol AVL en orden
+void mostrarActivosAVL(NodoAVL* nodo);
+
+// Declaración de la función para generar un ID único de activo
+string generarIDActivo();
+
+// Declaración de la función para generar un ID único de activo
+string generarIDActivo();
+
+// Función para rentar un activo
+void rentarActivo() {
+    NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
+    if (!usuarioActual) {
+        cout << "Error: Usuario no encontrado.\n";
+        return;
+    }
+
+    cout << "---------------------------------------------------" << endl;
+    cout << "-------------- Catalogo de Activos ----------------" << endl;
+    cout << "---------------------------------------------------" << endl;
+    
+    // Mostrar activos disponibles de todos los usuarios
+    bool hayActivos = false;
+    NodoMatriz* deptoActual = matrizUsuarios.cabeza;
+    while (deptoActual != nullptr) {
+        NodoMatriz* empresaActual = deptoActual->derecha;
+        while (empresaActual != nullptr) {
+            NodoMatriz* userActual = empresaActual->abajo;
+            while (userActual != nullptr) {
+                if (userActual->arbolAVL) {
+                    mostrarActivosAVL(userActual->arbolAVL);
+                    hayActivos = true;
+                }
+                userActual = userActual->abajo;
+            }
+            empresaActual = empresaActual->derecha;
+        }
+        deptoActual = deptoActual->derecha;
+    }
+
+    if (!hayActivos) {
+        cout << "No hay activos disponibles para rentar.\n";
+        return;
+    }
+
+    string idActivoRentar;
+    cout << "\nIngrese el ID del activo que desea rentar: ";
+    cin >> idActivoRentar;
+
+    int diasRenta;
+    cout << "Ingrese el numero de dias para rentar: ";
+    cin >> diasRenta;
+
+    // Buscar y eliminar el activo del árbol AVL del propietario
+    NodoAVL* activoEncontrado = nullptr;
+    string nombreActivoRentado;
+    string descripcionActivoRentado;
+
+    deptoActual = matrizUsuarios.cabeza;
+    while (deptoActual != nullptr) {
+        NodoMatriz* empresaActual = deptoActual->derecha;
+        while (empresaActual != nullptr) {
+            NodoMatriz* userActual = empresaActual->abajo;
+            while (userActual != nullptr) {
+                if (userActual->arbolAVL) {
+                    // Buscar el activo en el árbol AVL actual
+                    NodoAVL* actual = userActual->arbolAVL;
+                    bool encontrado = false;
+                    
+                    while (actual != nullptr && !encontrado) {
+                        if (idActivoRentar == actual->idActivo) {
+                            nombreActivoRentado = actual->nombreActivo;
+                            descripcionActivoRentado = actual->descripcion;
+                            encontrado = true;
+                            activoEncontrado = actual;
+                            
+                            // Eliminar el activo del árbol
+                            userActual->arbolAVL = eliminarNodoAVL(userActual->arbolAVL, idActivoRentar);
+                            
+                            // Crear nueva transacción
+                            string idTransaccion = generarIDActivo(); // Reutilizamos la función de generar ID
+                            listaTransacciones.insertarTransaccion(
+                                idTransaccion, idActivoRentar, nombreUsuario,
+                                departamento, empresa, diasRenta
+                            );
+                            
+                            cout << "\n----Renta exitosa-----\n";
+                            cout << "ID Transaccion: " << idTransaccion << endl;
+                            cout << "Activo rentado: " << nombreActivoRentado << endl;
+                            cout << "Por " << diasRenta << " dias\n";
+                            return;
+                        }
+                        else if (idActivoRentar < actual->idActivo) {
+                            actual = actual->izquierda;
+                        }
+                        else {
+                            actual = actual->derecha;
+                        }
+                    }
+                }
+                userActual = userActual->abajo;
+            }
+            empresaActual = empresaActual->derecha;
+        }
+        deptoActual = deptoActual->derecha;
+    }
+
+    if (!activoEncontrado) {
+        cout << "Error: No se encontró el activo especificado.\n";
+    }
+}
+
 // Función para mostrar los activos de un árbol AVL en orden
 void mostrarActivosAVL(NodoAVL* nodo) {
     if (!nodo)
@@ -331,8 +534,6 @@ string generarIDActivo() {
     }
     return id;
 }
-
-
 
 // Función para iniciar sesion
 bool iniciarSesion() {
@@ -499,7 +700,7 @@ void menuUsuario() {
                 modificarActivo();
                 break;
             case 4:
-                // Rentar activo
+                rentarActivo();
                 break;
             case 5:
                 // Mostrar activos rentados
