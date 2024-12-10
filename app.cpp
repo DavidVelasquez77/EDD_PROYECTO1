@@ -12,12 +12,14 @@ string nombreUsuario, contrasena, departamento, empresa;
 // Nodo para el árbol AVL
 struct NodoAVL {
     string idActivo;
-    string nombreActivo; 
+    string nombreActivo;
     string descripcion;
+    int tiempoMaximoRenta; 
     NodoAVL* izquierda;
     NodoAVL* derecha;
     int altura;
 };
+
 
 // Nodo para la matriz dispersa
 struct NodoMatriz {
@@ -113,16 +115,18 @@ private:
     }
 };
 
-NodoAVL* crearNodoAVL(string id, string nombre, string descripcion) {
+NodoAVL* crearNodoAVL(string id, string nombre, string descripcion, int tiempoMaximo) {
     NodoAVL* nuevoNodo = new NodoAVL();
     nuevoNodo->idActivo = id;
-    nuevoNodo->nombreActivo = nombre; // Asignar nombre del activo
+    nuevoNodo->nombreActivo = nombre;
     nuevoNodo->descripcion = descripcion;
+    nuevoNodo->tiempoMaximoRenta = tiempoMaximo; 
     nuevoNodo->izquierda = nullptr;
     nuevoNodo->derecha = nullptr;
-    nuevoNodo->altura = 1; // Altura inicial del nodo
+    nuevoNodo->altura = 1;
     return nuevoNodo;
 }
+
 
 int obtenerAltura(NodoAVL* nodo) {
     return nodo ? nodo->altura : 0;
@@ -158,16 +162,16 @@ NodoAVL* rotarIzquierda(NodoAVL* x) {
     return y;
 }
 
-NodoAVL* insertarEnAVL(NodoAVL* nodo, string id, string nombre, string descripcion) {
+NodoAVL* insertarEnAVL(NodoAVL* nodo, string id, string nombre, string descripcion, int tiempoMaximo) {
     if (!nodo)
-        return crearNodoAVL(id, nombre, descripcion);
+        return crearNodoAVL(id, nombre, descripcion, tiempoMaximo);
 
     if (id < nodo->idActivo)
-        nodo->izquierda = insertarEnAVL(nodo->izquierda, id, nombre, descripcion);
+        nodo->izquierda = insertarEnAVL(nodo->izquierda, id, nombre, descripcion, tiempoMaximo);
     else if (id > nodo->idActivo)
-        nodo->derecha = insertarEnAVL(nodo->derecha, id, nombre, descripcion);
+        nodo->derecha = insertarEnAVL(nodo->derecha, id, nombre, descripcion, tiempoMaximo);
     else
-        return nodo; // IDs duplicados no se permiten
+        return nodo;
 
     nodo->altura = 1 + max(obtenerAltura(nodo->izquierda), obtenerAltura(nodo->derecha));
     int balance = obtenerBalance(nodo);
@@ -187,6 +191,7 @@ NodoAVL* insertarEnAVL(NodoAVL* nodo, string id, string nombre, string descripci
 
     return nodo;
 }
+
 
 MatrizDispersa matrizUsuarios; 
 
@@ -218,6 +223,7 @@ NodoAVL* eliminarNodoAVL(NodoAVL* raiz, string id) {
             raiz->idActivo = temp->idActivo;
             raiz->nombreActivo = temp->nombreActivo;
             raiz->descripcion = temp->descripcion;
+            raiz->tiempoMaximoRenta = temp->tiempoMaximoRenta;
             raiz->derecha = eliminarNodoAVL(raiz->derecha, temp->idActivo);
         }
     }
@@ -385,10 +391,8 @@ void rentarActivo() {
     cout << "Ingrese el numero de dias para rentar: ";
     cin >> diasRenta;
 
-    // Buscar y eliminar el activo del árbol AVL del propietario
+    // Buscar y validar el activo en el árbol AVL del propietario
     NodoAVL* activoEncontrado = nullptr;
-    string nombreActivoRentado;
-    string descripcionActivoRentado;
 
     deptoActual = matrizUsuarios.cabeza;
     while (deptoActual != nullptr) {
@@ -397,37 +401,33 @@ void rentarActivo() {
             NodoMatriz* userActual = empresaActual->abajo;
             while (userActual != nullptr) {
                 if (userActual->arbolAVL) {
-                    // Buscar el activo en el árbol AVL actual
                     NodoAVL* actual = userActual->arbolAVL;
-                    bool encontrado = false;
-                    
-                    while (actual != nullptr && !encontrado) {
+                    while (actual != nullptr) {
                         if (idActivoRentar == actual->idActivo) {
-                            nombreActivoRentado = actual->nombreActivo;
-                            descripcionActivoRentado = actual->descripcion;
-                            encontrado = true;
                             activoEncontrado = actual;
-                            
-                            // Eliminar el activo del árbol
+
+                            // Validar el tiempo máximo de renta
+                            if (diasRenta > activoEncontrado->tiempoMaximoRenta) {
+                                cout << "Error: El tiempo solicitado excede el tiempo maximo permitido para este activo.\n";
+                                return;
+                            }
+
+                            // Eliminar el activo del árbol y registrar la transacción
                             userActual->arbolAVL = eliminarNodoAVL(userActual->arbolAVL, idActivoRentar);
-                            
-                            // Crear nueva transacción
-                            string idTransaccion = generarIDActivo(); // Reutilizamos la función de generar ID
+                            string idTransaccion = generarIDActivo(); // Generar ID único para la transacción
                             listaTransacciones.insertarTransaccion(
                                 idTransaccion, idActivoRentar, nombreUsuario,
                                 departamento, empresa, diasRenta
                             );
-                            
+
                             cout << "\n----Renta exitosa-----\n";
                             cout << "ID Transaccion: " << idTransaccion << endl;
-                            cout << "Activo rentado: " << nombreActivoRentado << endl;
+                            cout << "Activo rentado: " << activoEncontrado->nombreActivo << endl;
                             cout << "Por " << diasRenta << " dias\n";
                             return;
-                        }
-                        else if (idActivoRentar < actual->idActivo) {
+                        } else if (idActivoRentar < actual->idActivo) {
                             actual = actual->izquierda;
-                        }
-                        else {
+                        } else {
                             actual = actual->derecha;
                         }
                     }
@@ -444,6 +444,7 @@ void rentarActivo() {
     }
 }
 
+
 // Función para mostrar los activos de un árbol AVL en orden
 void mostrarActivosAVL(NodoAVL* nodo) {
     if (!nodo)
@@ -451,7 +452,7 @@ void mostrarActivosAVL(NodoAVL* nodo) {
 
     mostrarActivosAVL(nodo->izquierda);
     cout << ">> ID: " << nodo->idActivo << "; Nombre = " << nodo->nombreActivo
-         << "; Descripcion: " << nodo->descripcion << endl;
+         << "; Descripcion: " << nodo->descripcion << "; Tiempo Maximo de Renta = " << nodo->tiempoMaximoRenta << endl;
     mostrarActivosAVL(nodo->derecha);
 }
 
@@ -474,6 +475,7 @@ void eliminarActivo() {
     // Guardar la información del activo antes de eliminarlo
     string nombreActivoEliminado;
     string descripcionActivoEliminado;
+    int tiempoMaximoRentaActivoEliminado;
     
     // Buscar el activo y guardar su información
     NodoAVL* actual = usuarioActual->arbolAVL;
@@ -483,6 +485,7 @@ void eliminarActivo() {
         if (idActivoEliminar == actual->idActivo) {
             nombreActivoEliminado = actual->nombreActivo;
             descripcionActivoEliminado = actual->descripcion;
+            tiempoMaximoRentaActivoEliminado = actual->tiempoMaximoRenta;
             encontrado = true;
         } else if (idActivoEliminar < actual->idActivo) {
             actual = actual->izquierda;
@@ -504,6 +507,7 @@ void eliminarActivo() {
         cout << ">> ID = " << idActivoEliminar << "\n";
         cout << ">> Nombre = " << nombreActivoEliminado << "\n";
         cout << ">> descripcion = " << descripcionActivoEliminado << "\n\n";
+        cout << ">> Tiempo Maximo de Renta = " << tiempoMaximoRentaActivoEliminado << "\n";
     } else {
         cout << "Error: No se encontro un activo con el ID especificado.\n";
     }
@@ -590,15 +594,19 @@ void registrarUsuario() {
 // Función para agregar un activo
 void agregarActivo() {
     string nombreActivo, descripcionActivo, idActivo;
+    int tiempoMaximoRenta;
 
     cout << "Ingrese el nombre del nuevo activo: ";
-    cin.ignore(); // Limpiar el buffer de entrada
+    cin.ignore();
     getline(cin, nombreActivo);
 
     cout << "Ingrese la descripcion del nuevo activo: ";
     getline(cin, descripcionActivo);
 
-    idActivo = generarIDActivo(); // Generar un ID único para el activo
+    cout << "Ingrese el tiempo maximo de renta (en dias): ";
+    cin >> tiempoMaximoRenta;
+
+    idActivo = generarIDActivo();
     cout << "El ID unico del nuevo activo es: " << idActivo << endl;
 
     NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
@@ -608,8 +616,9 @@ void agregarActivo() {
         return;
     }
 
-    // Insertar el activo en el árbol AVL del usuario
-    usuarioActual->arbolAVL = insertarEnAVL(usuarioActual->arbolAVL, idActivo, nombreActivo, descripcionActivo);
+    usuarioActual->arbolAVL = insertarEnAVL(
+        usuarioActual->arbolAVL, idActivo, nombreActivo, descripcionActivo, tiempoMaximoRenta
+    );
     cout << "Activo agregado exitosamente.\n";
 }
 
@@ -649,7 +658,8 @@ void modificarActivo() {
         cout << "\nActivo seleccionado:\n";
         cout << ">> ID: " << activoEncontrado->idActivo << "\n";
         cout << ">> Nombre: " << activoEncontrado->nombreActivo << "\n";
-        cout << ">> Descripción actual: " << activoEncontrado->descripcion << "\n";
+        cout << ">> Descripcion actual: " << activoEncontrado->descripcion << "\n";
+        cout << ">> Tiempo Maximo de Renta: " << activoEncontrado->tiempoMaximoRenta << "\n";
 
         // Pedir la nueva descripción
         cout << "Ingrese la nueva descripcion para este activo: ";
@@ -665,6 +675,7 @@ void modificarActivo() {
         cout << ">> ID: " << activoEncontrado->idActivo << "\n";
         cout << ">> Nombre: " << activoEncontrado->nombreActivo << "\n";
         cout << ">> Nueva Descripcion: " << activoEncontrado->descripcion << "\n";
+        cout << ">> Tiempo Maximo de Renta: " << activoEncontrado->tiempoMaximoRenta << "\n";
     } else {
         cout << "Error: No se encontró un activo con el ID especificado.\n";
     }
