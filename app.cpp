@@ -358,8 +358,8 @@ void rentarActivo() {
     cout << "---------------------------------------------------" << endl;
     cout << "-------------- Catalogo de Activos ----------------" << endl;
     cout << "---------------------------------------------------" << endl;
-    
-    // Mostrar activos disponibles de todos los usuarios
+
+    // Mostrar activos disponibles de todos los usuarios menos los del usuario actual
     bool hayActivos = false;
     NodoMatriz* deptoActual = matrizUsuarios.cabeza;
     while (deptoActual != nullptr) {
@@ -367,7 +367,8 @@ void rentarActivo() {
         while (empresaActual != nullptr) {
             NodoMatriz* userActual = empresaActual->abajo;
             while (userActual != nullptr) {
-                if (userActual->arbolAVL) {
+                // Evitar mostrar los activos del usuario logeado
+                if (userActual->nombreUsuario != nombreUsuario && userActual->arbolAVL) {
                     mostrarActivosAVL(userActual->arbolAVL);
                     hayActivos = true;
                 }
@@ -391,8 +392,9 @@ void rentarActivo() {
     cout << "Ingrese el numero de dias para rentar: ";
     cin >> diasRenta;
 
-    // Buscar y validar el activo en el árbol AVL del propietario
+    // Buscar y validar el activo en los árboles AVL de otros usuarios
     NodoAVL* activoEncontrado = nullptr;
+    NodoMatriz* propietarioActivo = nullptr; // Guardar referencia al propietario del activo
 
     deptoActual = matrizUsuarios.cabeza;
     while (deptoActual != nullptr) {
@@ -400,11 +402,13 @@ void rentarActivo() {
         while (empresaActual != nullptr) {
             NodoMatriz* userActual = empresaActual->abajo;
             while (userActual != nullptr) {
-                if (userActual->arbolAVL) {
+                // Ignorar los activos del usuario logeado
+                if (userActual->nombreUsuario != nombreUsuario && userActual->arbolAVL) {
                     NodoAVL* actual = userActual->arbolAVL;
                     while (actual != nullptr) {
                         if (idActivoRentar == actual->idActivo) {
                             activoEncontrado = actual;
+                            propietarioActivo = userActual; // Guardar el propietario del activo
 
                             // Validar el tiempo máximo de renta
                             if (diasRenta > activoEncontrado->tiempoMaximoRenta) {
@@ -412,19 +416,8 @@ void rentarActivo() {
                                 return;
                             }
 
-                            // Eliminar el activo del árbol y registrar la transacción
-                            userActual->arbolAVL = eliminarNodoAVL(userActual->arbolAVL, idActivoRentar);
-                            string idTransaccion = generarIDActivo(); // Generar ID único para la transacción
-                            listaTransacciones.insertarTransaccion(
-                                idTransaccion, idActivoRentar, nombreUsuario,
-                                departamento, empresa, diasRenta
-                            );
-
-                            cout << "\n----Renta exitosa-----\n";
-                            cout << "ID Transaccion: " << idTransaccion << endl;
-                            cout << "Activo rentado: " << activoEncontrado->nombreActivo << endl;
-                            cout << "Por " << diasRenta << " dias\n";
-                            return;
+                            // Pasar a eliminar el activo del árbol del propietario y registrar la transacción
+                            break;
                         } else if (idActivoRentar < actual->idActivo) {
                             actual = actual->izquierda;
                         } else {
@@ -432,17 +425,33 @@ void rentarActivo() {
                         }
                     }
                 }
+                if (activoEncontrado) break; // Salir del bucle si el activo ya fue encontrado
                 userActual = userActual->abajo;
             }
+            if (activoEncontrado) break; // Salir del bucle si el activo ya fue encontrado
             empresaActual = empresaActual->derecha;
         }
+        if (activoEncontrado) break; // Salir del bucle si el activo ya fue encontrado
         deptoActual = deptoActual->derecha;
     }
 
     if (!activoEncontrado) {
-        cout << "Error: No se encontró el activo especificado.\n";
+        cout << "Error: No se encontró el activo especificado o no está disponible.\n";
+        return;
     }
+
+    // Eliminar el activo del árbol del propietario y registrar la transacción
+    propietarioActivo->arbolAVL = eliminarNodoAVL(propietarioActivo->arbolAVL, idActivoRentar);
+
+    string idTransaccion = generarIDActivo(); // Generar ID único para la transacción
+    listaTransacciones.insertarTransaccion(
+        idTransaccion, idActivoRentar, nombreUsuario,
+        departamento, empresa, diasRenta
+    );
+
+ 
 }
+
 
 
 // Función para mostrar los activos de un árbol AVL en orden
