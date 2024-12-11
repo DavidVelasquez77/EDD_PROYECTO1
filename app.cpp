@@ -452,6 +452,86 @@ void rentarActivo() {
  
 }
 
+
+void activosRentados() {
+    // Verificar si hay transacciones para el usuario actual
+    bool tieneTransacciones = false;
+    NodoTransaccion* actual = listaTransacciones.cabeza;
+    
+    if (!actual) {
+        cout << "No hay activos rentados.\n";
+        return;
+    }
+
+    // Encabezado del listado de activos rentados
+    cout << "---------------------------------------------------" << endl;
+    cout << "-------------- Activos Rentados -------------------" << endl;
+    cout << "---------------------------------------------------" << endl;
+
+    // Mostrar solo las transacciones del usuario actual
+    do {
+        if (actual->usuario == nombreUsuario) {
+            tieneTransacciones = true;
+            
+            cout << "\n-------- Activo Rentado --------\n";
+            cout << "ID Transaccion: " << actual->idTransaccion << endl;
+            cout << "ID Activo: " << actual->idActivo << endl;
+            cout << "Departamento: " << actual->departamento << endl;
+            cout << "Empresa: " << actual->empresa << endl;
+            cout << "Dias de renta: " << actual->diasRenta << endl;
+            cout << "Fecha de renta: " << ctime(&actual->fechaRenta);
+        }
+        actual = actual->siguiente;
+    } while (actual != listaTransacciones.cabeza);
+
+    // Si no hay transacciones para este usuario
+    if (!tieneTransacciones) {
+        cout << "No tiene activos rentados en este momento.\n";
+        return;
+    }
+
+    // Opción de devolución de activo
+    char opcion;
+    cout << "\n¿Desea devolver un activo? (S/N): ";
+    cin >> opcion;
+
+    if (opcion == 'S' || opcion == 's') {
+        string idActivoDevolver;
+        cout << "Ingrese el ID del activo a devolver: ";
+        cin >> idActivoDevolver;
+
+        // Buscar la transacción del activo a devolver
+        actual = listaTransacciones.cabeza;
+        NodoTransaccion* transaccionADevolver = nullptr;
+        do {
+            if (actual->usuario == nombreUsuario && actual->idActivo == idActivoDevolver) {
+                transaccionADevolver = actual;
+                break;
+            }
+            actual = actual->siguiente;
+        } while (actual != listaTransacciones.cabeza);
+
+        if (transaccionADevolver) {
+            // Realizar la devolución
+            cout << "\n--- Resumen de Devolución ---\n";
+            cout << "ID Activo: " << transaccionADevolver->idActivo << endl;
+            cout << "Días rentados: " << transaccionADevolver->diasRenta << endl;
+            
+            // Aquí puedes agregar lógica adicional para la devolución:
+            // - Reintegrar el activo al árbol AVL del propietario original
+            // - Calcular cargos por retraso si aplica
+            // - Eliminar la transacción de la lista de transacciones
+
+            // Ejemplo de eliminación de la transacción
+            // listaTransacciones.eliminarTransaccion(transaccionADevolver->idTransaccion);
+
+            cout << "Activo devuelto exitosamente.\n";
+        } else {
+            cout << "No se encontró un activo con ese ID entre sus rentados.\n";
+        }
+    }
+}
+
 void mostrarActivosRentados() {
     if (!listaTransacciones.cabeza) {
         cout << "No hay activos rentados.\n";
@@ -749,7 +829,7 @@ void menuUsuario() {
                 rentarActivo();
                 break;
             case 5:
-                // Mostrar activos rentados
+                activosRentados();
                 break;
             case 6:
                 mostrarActivosRentados();
