@@ -15,6 +15,7 @@ struct NodoAVL {
     string nombreActivo;
     string descripcion;
     int tiempoMaximoRenta; 
+    bool disponible;
     NodoAVL* izquierda;
     NodoAVL* derecha;
     int altura;
@@ -121,6 +122,7 @@ NodoAVL* crearNodoAVL(string id, string nombre, string descripcion, int tiempoMa
     nuevoNodo->nombreActivo = nombre;
     nuevoNodo->descripcion = descripcion;
     nuevoNodo->tiempoMaximoRenta = tiempoMaximo; 
+    nuevoNodo->disponible = true; 
     nuevoNodo->izquierda = nullptr;
     nuevoNodo->derecha = nullptr;
     nuevoNodo->altura = 1;
@@ -248,6 +250,25 @@ NodoAVL* eliminarNodoAVL(NodoAVL* raiz, string id) {
     return raiz;
 }
 
+// Nueva función para mostrar solo activos disponibles
+void mostrarActivosDisponiblesAVL(NodoAVL* nodo) {
+    if (!nodo) return;
+
+    // Recorrido en orden (inorder traversal)
+    mostrarActivosDisponiblesAVL(nodo->izquierda);
+
+    // Mostrar solo los activos disponibles
+    if (nodo->disponible) {
+        cout << "ID Activo: " << nodo->idActivo << endl;
+        cout << "Nombre: " << nodo->nombreActivo << endl;
+        cout << "Descripción: " << nodo->descripcion << endl;
+        cout << "Tiempo Máximo de Renta: " << nodo->tiempoMaximoRenta << " días" << endl;
+        cout << "----------------------------" << endl;
+    }
+
+    mostrarActivosDisponiblesAVL(nodo->derecha);
+}
+
 // Estructura para el nodo de la lista circular de transacciones
 struct NodoTransaccion {
     string idTransaccion;
@@ -257,6 +278,7 @@ struct NodoTransaccion {
     string empresa;
     int diasRenta;
     time_t fechaRenta;
+    string estadoTransaccion; 
     NodoTransaccion* siguiente;
     NodoTransaccion* anterior;
 
@@ -347,7 +369,7 @@ string generarIDActivo();
 // Declaración de la función para generar un ID único de activo
 string generarIDActivo();
 
-// Función para rentar un activo
+// Modificar la función de rentarActivo
 void rentarActivo() {
     NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
     if (!usuarioActual) {
@@ -369,7 +391,7 @@ void rentarActivo() {
             while (userActual != nullptr) {
                 // Evitar mostrar los activos del usuario logeado
                 if (userActual->nombreUsuario != nombreUsuario && userActual->arbolAVL) {
-                    mostrarActivosAVL(userActual->arbolAVL);
+                    mostrarActivosDisponiblesAVL(userActual->arbolAVL);
                     hayActivos = true;
                 }
                 userActual = userActual->abajo;
@@ -407,6 +429,12 @@ void rentarActivo() {
                     NodoAVL* actual = userActual->arbolAVL;
                     while (actual != nullptr) {
                         if (idActivoRentar == actual->idActivo) {
+                            // Verificar si el activo está disponible
+                            if (!actual->disponible) {
+                                cout << "Error: El activo ya está rentado.\n";
+                                return;
+                            }
+
                             activoEncontrado = actual;
                             propietarioActivo = userActual; // Guardar el propietario del activo
 
@@ -416,7 +444,6 @@ void rentarActivo() {
                                 return;
                             }
 
-                            // Pasar a eliminar el activo del árbol del propietario y registrar la transacción
                             break;
                         } else if (idActivoRentar < actual->idActivo) {
                             actual = actual->izquierda;
@@ -440,17 +467,85 @@ void rentarActivo() {
         return;
     }
 
-    // Eliminar el activo del árbol del propietario y registrar la transacción
-    propietarioActivo->arbolAVL = eliminarNodoAVL(propietarioActivo->arbolAVL, idActivoRentar);
+    // Cambiar el estado de disponibilidad del activo a false (rentado)
+    activoEncontrado->disponible = false;
 
     string idTransaccion = generarIDActivo(); // Generar ID único para la transacción
     listaTransacciones.insertarTransaccion(
         idTransaccion, idActivoRentar, nombreUsuario,
         departamento, empresa, diasRenta
     );
-
- 
 }
+
+// Función para devolver un activo (cambiar a disponible)
+void devolverActivo(string idActivo) {
+    // Buscar el activo en todos los árboles AVL de usuarios
+    NodoMatriz* deptoActual = matrizUsuarios.cabeza;
+    while (deptoActual != nullptr) {
+        NodoMatriz* empresaActual = deptoActual->derecha;
+        while (empresaActual != nullptr) {
+            NodoMatriz* userActual = empresaActual->abajo;
+            while (userActual != nullptr) {
+                NodoAVL* actual = userActual->arbolAVL;
+                while (actual != nullptr) {
+                    if (idActivo == actual->idActivo) {
+                        // Encontrar y cambiar el estado a disponible
+                        actual->disponible = true;
+                        cout << "Activo " << idActivo << " devuelto correctamente\n";
+                        return;
+                    } else if (idActivo < actual->idActivo) {
+                        actual = actual->izquierda;
+                    } else {
+                        actual = actual->derecha;
+                    }
+                }
+                userActual = userActual->abajo;
+            }
+            empresaActual = empresaActual->derecha;
+        }
+        deptoActual = deptoActual->derecha;
+    }
+
+    cout << "No se encontro el activo especificado.\n";
+}
+
+// Función para eliminar una transacción de la lista circular
+void eliminarTransaccion(string idTransaccion) {
+    if (!listaTransacciones.cabeza) return;
+
+    NodoTransaccion* actual = listaTransacciones.cabeza;
+    NodoTransaccion* anterior = nullptr;
+
+    // Recorrer la lista para encontrar la transacción
+    do {
+        if (actual->idTransaccion == idTransaccion) {
+            // Si es el único nodo
+            if (actual->siguiente == actual) {
+                listaTransacciones.cabeza = nullptr;
+                delete actual;
+                return;
+            }
+
+            // Si es la cabeza
+            if (actual == listaTransacciones.cabeza) {
+                listaTransacciones.cabeza = actual->siguiente;
+            }
+
+            // Ajustar los punteros para "saltar" el nodo a eliminar
+            if (anterior) {
+                anterior->siguiente = actual->siguiente;
+            }
+
+            // Liberar memoria
+            delete actual;
+            return;
+        }
+
+        anterior = actual;
+        actual = actual->siguiente;
+    } while (actual != listaTransacciones.cabeza);
+}
+
 
 
 void activosRentados() {
@@ -468,6 +563,10 @@ void activosRentados() {
     cout << "-------------- Activos Rentados -------------------" << endl;
     cout << "---------------------------------------------------" << endl;
 
+    // Arreglo para almacenar IDs de activos rentados
+    string activosRentadosUsuario[100];  // Ajusta el tamaño según tus necesidades
+    int contadorActivos = 0;
+
     // Mostrar solo las transacciones del usuario actual
     do {
         if (actual->usuario == nombreUsuario) {
@@ -480,6 +579,9 @@ void activosRentados() {
             cout << "Empresa: " << actual->empresa << endl;
             cout << "Dias de renta: " << actual->diasRenta << endl;
             cout << "Fecha de renta: " << ctime(&actual->fechaRenta);
+            
+            // Guardar el ID del activo para potential devolución
+            activosRentadosUsuario[contadorActivos++] = actual->idActivo;
         }
         actual = actual->siguiente;
     } while (actual != listaTransacciones.cabeza);
@@ -501,8 +603,8 @@ void activosRentados() {
         cin >> idActivoDevolver;
 
         // Buscar la transacción del activo a devolver
-        actual = listaTransacciones.cabeza;
         NodoTransaccion* transaccionADevolver = nullptr;
+        actual = listaTransacciones.cabeza;
         do {
             if (actual->usuario == nombreUsuario && actual->idActivo == idActivoDevolver) {
                 transaccionADevolver = actual;
@@ -513,17 +615,15 @@ void activosRentados() {
 
         if (transaccionADevolver) {
             // Realizar la devolución
-            cout << "\n--- Resumen de Devolución ---\n";
+            cout << "\n--- Resumen de Devolucion ---\n";
             cout << "ID Activo: " << transaccionADevolver->idActivo << endl;
-            cout << "Días rentados: " << transaccionADevolver->diasRenta << endl;
+            cout << "Dias rentados: " << transaccionADevolver->diasRenta << endl;
             
-            // Aquí puedes agregar lógica adicional para la devolución:
-            // - Reintegrar el activo al árbol AVL del propietario original
-            // - Calcular cargos por retraso si aplica
-            // - Eliminar la transacción de la lista de transacciones
+            // Devolver el activo (cambiar a disponible)
+            devolverActivo(transaccionADevolver->idActivo);
 
-            // Ejemplo de eliminación de la transacción
-            // listaTransacciones.eliminarTransaccion(transaccionADevolver->idTransaccion);
+            // Marcar la transacción como devuelta (sin eliminarla)
+            transaccionADevolver->estadoTransaccion = "DEVUELTO";
 
             cout << "Activo devuelto exitosamente.\n";
         } else {
@@ -531,6 +631,7 @@ void activosRentados() {
         }
     }
 }
+
 
 void mostrarActivosRentados() {
     if (!listaTransacciones.cabeza) {
