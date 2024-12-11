@@ -261,8 +261,8 @@ void mostrarActivosDisponiblesAVL(NodoAVL* nodo) {
     if (nodo->disponible) {
         cout << "ID Activo: " << nodo->idActivo << endl;
         cout << "Nombre: " << nodo->nombreActivo << endl;
-        cout << "Descripción: " << nodo->descripcion << endl;
-        cout << "Tiempo Máximo de Renta: " << nodo->tiempoMaximoRenta << " días" << endl;
+        cout << "Descripcion: " << nodo->descripcion << endl;
+        cout << "Tiempo Máximo de Renta: " << nodo->tiempoMaximoRenta << " dias" << endl;
         cout << "----------------------------" << endl;
     }
 
@@ -285,6 +285,7 @@ NodoAVL* buscarActivoEnAVL(NodoAVL* raiz, const string& idActivo) {
 struct NodoTransaccion {
     string idTransaccion;
     string idActivo;
+    string activo;
     string usuario;
     string departamento;
     string empresa;
@@ -294,9 +295,9 @@ struct NodoTransaccion {
     NodoTransaccion* siguiente;
     NodoTransaccion* anterior;
 
-    NodoTransaccion(string idTrans, string idAct, string user, string depto, 
+    NodoTransaccion(string idTrans, string idAct, string act, string user, string depto, 
                     string emp, int dias) 
-        : idTransaccion(idTrans), idActivo(idAct), usuario(user), 
+        : idTransaccion(idTrans), idActivo(idAct), activo(act) , usuario(user), 
           departamento(depto), empresa(emp), diasRenta(dias) {
         time(&fechaRenta);
         time(&fechaRenta);
@@ -312,9 +313,9 @@ public:
 public:
     ListaTransacciones() : cabeza(nullptr) {}
 
-    void insertarTransaccion(string idTrans, string idAct, string user, 
+    void insertarTransaccion(string idTrans, string idAct, string act, string user, 
                            string depto, string emp, int dias) {
-        NodoTransaccion* nuevo = new NodoTransaccion(idTrans, idAct, user, 
+        NodoTransaccion* nuevo = new NodoTransaccion(idTrans, idAct, act, user, 
                                                     depto, emp, dias);
 
         if (!cabeza) {
@@ -359,6 +360,7 @@ public:
             cout << "\n-------- Transaccion --------\n";
             cout << "ID Transaccion: " << actual->idTransaccion << endl;
             cout << "ID Activo: " << actual->idActivo << endl;
+            cout << "Activo: " << actual->activo << endl;
             cout << "Usuario: " << actual->usuario << endl;
             cout << "Departamento: " << actual->departamento << endl;
             cout << "Empresa: " << actual->empresa << endl;
@@ -484,7 +486,7 @@ void rentarActivo() {
 
     string idTransaccion = generarIDActivo(); // Generar ID único para la transacción
     listaTransacciones.insertarTransaccion(
-        idTransaccion, idActivoRentar, nombreUsuario,
+        idTransaccion, idActivoRentar, activoEncontrado->nombreActivo, nombreUsuario,
         departamento, empresa, diasRenta
     );
 }
@@ -587,6 +589,8 @@ void activosRentados() {
             cout << "\n-------- Activo Rentado --------\n";
             cout << "ID Transaccion: " << actual->idTransaccion << endl;
             cout << "ID Activo: " << actual->idActivo << endl;
+            cout << "Activo: " << actual->activo << endl;
+            cout << "Usuario: " << actual->usuario << endl;
             cout << "Departamento: " << actual->departamento << endl;
             cout << "Empresa: " << actual->empresa << endl;
             cout << "Dias de renta: " << actual->diasRenta << endl;
@@ -629,6 +633,7 @@ void activosRentados() {
             // Realizar la devolución
             cout << "\n--- Resumen de Devolucion ---\n";
             cout << "ID Activo: " << transaccionADevolver->idActivo << endl;
+            cout << "Activo rentado: " << transaccionADevolver->activo << endl;
             cout << "Dias rentados: " << transaccionADevolver->diasRenta << endl;
             
             // Devolver el activo (cambiar a disponible)
@@ -676,10 +681,11 @@ void mostrarMisActivosRentados() {
             cout << "\n-------- Activo Rentado --------\n";
             cout << "ID Transaccion: " << actual->idTransaccion << endl;
             cout << "ID Activo: " << actual->idActivo << endl;
-            cout << "Usuario que rentó: " << actual->usuario << endl;
+            cout << "Activo: " << actual->activo << endl;
+            cout << "Usuario que rento: " << actual->usuario << endl;
             cout << "Departamento: " << actual->departamento << endl;
             cout << "Empresa: " << actual->empresa << endl;
-            cout << "Días de renta: " << actual->diasRenta << endl;
+            cout << "Dias de renta: " << actual->diasRenta << endl;
             cout << "Fecha de renta: " << ctime(&actual->fechaRenta);
         }
         actual = actual->siguiente;
@@ -708,6 +714,7 @@ void mostrarActivosRentados() {
             cout << "\n-------- Transaccion --------\n";
             cout << "ID Transaccion: " << actual->idTransaccion << endl;
             cout << "ID Activo: " << actual->idActivo << endl;
+            cout << "Activo: " << actual->activo << endl;
             cout << "Usuario: " << actual->usuario << endl;
             cout << "Departamento: " << actual->departamento << endl;
             cout << "Empresa: " << actual->empresa << endl;
