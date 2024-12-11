@@ -272,7 +272,7 @@ struct NodoTransaccion {
 
 // Clase para manejar la lista circular de transacciones
 class ListaTransacciones {
-private:
+public:
     NodoTransaccion* cabeza;
     
 public:
@@ -452,6 +452,32 @@ void rentarActivo() {
  
 }
 
+void mostrarActivosRentados() {
+    if (!listaTransacciones.cabeza) {
+        cout << "No hay activos rentados.\n";
+        return;
+    }
+
+    cout << "---------------------------------------------------" << endl;
+    cout << "-------------- Activos Rentados ----------------" << endl;
+    cout << "---------------------------------------------------" << endl;
+
+    NodoTransaccion* actual = listaTransacciones.cabeza;
+    do {
+        // Verificar si el usuario actual es el mismo que el de la transacción
+        if (actual->usuario == nombreUsuario) {
+            cout << "\n-------- Transaccion --------\n";
+            cout << "ID Transaccion: " << actual->idTransaccion << endl;
+            cout << "ID Activo: " << actual->idActivo << endl;
+            cout << "Usuario: " << actual->usuario << endl;
+            cout << "Departamento: " << actual->departamento << endl;
+            cout << "Empresa: " << actual->empresa << endl;
+            cout << "Dias de renta: " << actual->diasRenta << endl;
+            cout << "Fecha de renta: " << ctime(&actual->fechaRenta);
+        }
+        actual = actual->siguiente;
+    } while (actual != listaTransacciones.cabeza);
+}
 
 
 // Función para mostrar los activos de un árbol AVL en orden
@@ -701,7 +727,7 @@ void menuUsuario() {
         cout << "2. Eliminar Activo" << endl;
         cout << "3. Modificar Activo" << endl;
         cout << "4. Rentar Activo" << endl;
-        cout << "5. Activos Rentados" << endl;
+        cout << "5. Devolver Activos Rentados" << endl;
         cout << "6. Mis Activos Rentados" << endl;
         cout << "7. Cerrar Sesion" << endl;
         cout << "Ingresar Opcion: ";
@@ -726,7 +752,7 @@ void menuUsuario() {
                 // Mostrar activos rentados
                 break;
             case 6:
-                // Mostrar mis activos rentados
+                mostrarActivosRentados();
                 break;
             case 7:
                 // Cerrar sesion
