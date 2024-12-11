@@ -269,6 +269,18 @@ void mostrarActivosDisponiblesAVL(NodoAVL* nodo) {
     mostrarActivosDisponiblesAVL(nodo->derecha);
 }
 
+NodoAVL* buscarActivoEnAVL(NodoAVL* raiz, const string& idActivo) {
+    if (!raiz) return nullptr;
+
+    if (raiz->idActivo == idActivo) {
+        return raiz;
+    } else if (idActivo < raiz->idActivo) {
+        return buscarActivoEnAVL(raiz->izquierda, idActivo);
+    } else {
+        return buscarActivoEnAVL(raiz->derecha, idActivo);
+    }
+}
+
 // Estructura para el nodo de la lista circular de transacciones
 struct NodoTransaccion {
     string idTransaccion;
@@ -632,6 +644,52 @@ void activosRentados() {
     }
 }
 
+bool verificarPropiedadActivo(const string& idActivo, const string& nombreUsuario) {
+    NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
+    if (!usuarioActual || !usuarioActual->arbolAVL) {
+        return false;
+    }
+
+    NodoAVL* activo = buscarActivoEnAVL(usuarioActual->arbolAVL, idActivo);
+    return activo != nullptr; // Retorna true si el activo fue encontrado
+}
+
+
+
+void mostrarMisActivosRentados() {
+    if (!listaTransacciones.cabeza) {
+        cout << "No hay transacciones registradas.\n";
+        return;
+    }
+
+    cout << "---------------------------------------------------" << endl;
+    cout << "------------- Mis Activos Rentados ---------------" << endl;
+    cout << "---------------------------------------------------" << endl;
+
+    bool hayActivosRentados = false;
+    NodoTransaccion* actual = listaTransacciones.cabeza;
+
+    do {
+        // Filtrar: El activo debe ser del usuario actual, pero rentado por otro usuario
+        if (actual->usuario != nombreUsuario && verificarPropiedadActivo(actual->idActivo, nombreUsuario)) {
+            hayActivosRentados = true;
+            cout << "\n-------- Activo Rentado --------\n";
+            cout << "ID Transaccion: " << actual->idTransaccion << endl;
+            cout << "ID Activo: " << actual->idActivo << endl;
+            cout << "Usuario que rentó: " << actual->usuario << endl;
+            cout << "Departamento: " << actual->departamento << endl;
+            cout << "Empresa: " << actual->empresa << endl;
+            cout << "Días de renta: " << actual->diasRenta << endl;
+            cout << "Fecha de renta: " << ctime(&actual->fechaRenta);
+        }
+        actual = actual->siguiente;
+    } while (actual != listaTransacciones.cabeza);
+
+    if (!hayActivosRentados) {
+        cout << "No tiene activos rentados por otros usuarios en este momento.\n";
+    }
+}
+
 
 void mostrarActivosRentados() {
     if (!listaTransacciones.cabeza) {
@@ -661,6 +719,7 @@ void mostrarActivosRentados() {
 }
 
 
+
 // Función para mostrar los activos de un árbol AVL en orden
 void mostrarActivosAVL(NodoAVL* nodo) {
     if (!nodo)
@@ -668,7 +727,7 @@ void mostrarActivosAVL(NodoAVL* nodo) {
 
     mostrarActivosAVL(nodo->izquierda);
     cout << ">> ID: " << nodo->idActivo << "; Nombre = " << nodo->nombreActivo
-         << "; Descripcion: " << nodo->descripcion << "; Tiempo Maximo de Renta = " << nodo->tiempoMaximoRenta << endl;
+        << "; Descripcion: " << nodo->descripcion << "; Tiempo Maximo de Renta = " << nodo->tiempoMaximoRenta << endl;
     mostrarActivosAVL(nodo->derecha);
 }
 
@@ -908,7 +967,7 @@ void menuUsuario() {
         cout << "2. Eliminar Activo" << endl;
         cout << "3. Modificar Activo" << endl;
         cout << "4. Rentar Activo" << endl;
-        cout << "5. Devolver Activos Rentados" << endl;
+        cout << "5. Activos Rentados" << endl;
         cout << "6. Mis Activos Rentados" << endl;
         cout << "7. Cerrar Sesion" << endl;
         cout << "Ingresar Opcion: ";
@@ -933,7 +992,7 @@ void menuUsuario() {
                 activosRentados();
                 break;
             case 6:
-                mostrarActivosRentados();
+                mostrarMisActivosRentados();
                 break;
             case 7:
                 // Cerrar sesion
