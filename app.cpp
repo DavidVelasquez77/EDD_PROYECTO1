@@ -2,6 +2,8 @@
 #include <string>
 #include <limits>
 #include <ctime>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -83,7 +85,49 @@ public:
 
         return nullptr;
     }
+    
+void generarReporteGraphviz() {
+    ofstream archivo("reporte_matriz.dot");
+    if (!archivo.is_open()) {
+        cout << "Error al crear el archivo de reporte.\n";
+        return;
+    }
 
+    archivo << "digraph MatrizLayout {\n";
+    archivo << "  rankdir=LR;\n";
+    archivo << "  node [shape=box, style=filled, fontname=Arial];\n";
+    archivo << "  splines=ortho;\n";
+
+    // Cuadro en (1,1): Admin
+    archivo << "  admin [label=\"Admin\", pos=\"0,0!\", fillcolor=lightgreen];\n";
+
+    // Recorrer departamentos para la primera fila
+    NodoMatriz* actualDepartamento = cabeza;
+    int columna = 1;
+    while (actualDepartamento) {
+        archivo << "  departamento" << columna 
+                << " [label=\"" << actualDepartamento->nombreUsuario 
+                << "\", pos=\"" << columna << ",0!\", fillcolor=lightblue];\n";
+        
+        // Conectar con flechas
+        if (columna > 1) {
+            archivo << "  departamento" << (columna-1) 
+                    << " -> departamento" << columna << " [style=dashed];\n";
+        }
+
+        actualDepartamento = actualDepartamento->derecha;
+        columna++;
+    }
+
+    archivo << "  admin -> departamento1 [style=bold];\n";
+
+    archivo << "}\n";
+    archivo.close();
+
+    // Generar imagen PNG
+    system("dot -Tpng reporte_matriz.dot -o reporte_matriz.png");
+    cout << "Reporte generado como 'reporte_matriz.png'.\n";
+}
 private:
     // Obtener o insertar un encabezado (horizontal o vertical)
     NodoMatriz* obtenerOInsertarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
@@ -1034,7 +1078,7 @@ void menuAdministrador() {
                 registrarUsuario();
                 break;
             case 2:
-                // Reporte matriz dispersa
+                matrizUsuarios.generarReporteGraphviz();
                 break;
             case 3:
                 // Reporte activos disponibles de un departamento

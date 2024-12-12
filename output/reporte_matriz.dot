@@ -1,0 +1,33 @@
+digraph MatrizLayout {
+  rankdir=TB;
+  node [shape=box, style=filled, fontname=Arial];
+  splines=ortho;
+  admin [label="Admin", pos="0,0!", fillcolor=lightgreen];
+  departamento1 [label="guatemala", pos="1,0!", fillcolor=lightblue];
+  empresa_1_1 [label="solola", pos="0,1!", fillcolor=lightyellow];
+  departamento1 -> empresa_1_1 [style=bold];
+  departamento2 [label="solola", pos="2,0!", fillcolor=lightblue];
+  departamento1 -> departamento2 [style=dashed];
+  empresa_2_1 [label="claro", pos="0,1!", fillcolor=lightyellow];
+  empresa_2_2 [label="emilio", pos="0,2!", fillcolor=lightyellow];
+  empresa_2_1 -> empresa_2_2 [style=dashed];
+  empresa_2_3 [label="telus", pos="0,3!", fillcolor=lightyellow];
+  empresa_2_2 -> empresa_2_3 [style=dashed];
+  empresa_2_4 [label="diego", pos="0,4!", fillcolor=lightyellow];
+  empresa_2_3 -> empresa_2_4 [style=dashed];
+  departamento2 -> empresa_2_1 [style=bold];
+  departamento3 [label="claro", pos="3,0!", fillcolor=lightblue];
+  departamento2 -> departamento3 [style=dashed];
+  empresa_3_1 [label="zacapa", pos="0,1!", fillcolor=lightyellow];
+  departamento3 -> empresa_3_1 [style=bold];
+  departamento4 [label="zacapa", pos="4,0!", fillcolor=lightblue];
+  departamento3 -> departamento4 [style=dashed];
+  empresa_4_1 [label="tigo", pos="0,1!", fillcolor=lightyellow];
+  empresa_4_2 [label="xavi", pos="0,2!", fillcolor=lightyellow];
+  empresa_4_1 -> empresa_4_2 [style=dashed];
+  departamento4 -> empresa_4_1 [style=bold];
+  departamento5 [label="tigo", pos="5,0!", fillcolor=lightblue];
+  departamento4 -> departamento5 [style=dashed];
+  departamento5 -> empresa_5_1 [style=bold];
+  admin -> departamento1 [style=bold];
+}
