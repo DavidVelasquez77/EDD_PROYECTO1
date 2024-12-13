@@ -94,32 +94,62 @@ void generarReporteGraphviz() {
     }
 
     archivo << "digraph MatrizLayout {\n";
-    archivo << "  rankdir=LR;\n";
+    archivo << "  rankdir=TB;\n";  // Cambiar a top-to-bottom para mejor visualización
     archivo << "  node [shape=box, style=filled, fontname=Arial];\n";
     archivo << "  splines=ortho;\n";
+    archivo << "  nodesep=0.5;\n";  // Separación entre nodos
+    archivo << "  ranksep=0.5;\n";  // Separación entre rangos
 
-    // Cuadro en (1,1): Admin
-    archivo << "  admin [label=\"Admin\", pos=\"0,0!\", fillcolor=lightgreen];\n";
-
-    // Recorrer departamentos para la primera fila
+    // Generar encabezados de departamentos (fila horizontal superior)
+    archivo << "  subgraph cluster_departamentos {\n";
+    archivo << "    style=filled;\n";
+    archivo << "    color=lightgrey;\n";
+    archivo << "    label=\"Departamentos\";\n";
+    
     NodoMatriz* actualDepartamento = cabeza;
-    int columna = 1;
+    int columna = 0;
     while (actualDepartamento) {
-        archivo << "  departamento" << columna 
+        archivo << "    departamento" << columna 
                 << " [label=\"" << actualDepartamento->nombreUsuario 
-                << "\", pos=\"" << columna << ",0!\", fillcolor=lightblue];\n";
+                << "\", fillcolor=lightblue];\n";
         
-        // Conectar con flechas
-        if (columna > 1) {
-            archivo << "  departamento" << (columna-1) 
+        // Conectar departamentos horizontalmente
+        if (columna > 0) {
+            archivo << "    departamento" << (columna-1) 
                     << " -> departamento" << columna << " [style=dashed];\n";
         }
 
         actualDepartamento = actualDepartamento->derecha;
         columna++;
     }
+    archivo << "  }\n";
 
-    archivo << "  admin -> departamento1 [style=bold];\n";
+    // Generar encabezados de empresas (columna vertical izquierda)
+    archivo << "  subgraph cluster_empresas {\n";
+    archivo << "    style=filled;\n";
+    archivo << "    color=lightgrey;\n";
+    archivo << "    label=\"Empresas\";\n";
+    
+    // Reiniciar recorrido desde la cabeza
+    actualDepartamento = cabeza;
+    NodoMatriz* actualEmpresa = actualDepartamento ? actualDepartamento->derecha : nullptr;
+    int fila = 0;
+    while (actualEmpresa) {
+        archivo << "    empresa" << fila 
+                << " [label=\"" << actualEmpresa->nombreUsuario 
+                << "\", fillcolor=lightgreen];\n";
+        
+        // Conectar empresas verticalmente
+        if (fila > 0) {
+            archivo << "    empresa" << (fila-1) 
+                    << " -> empresa" << fila << " [style=dashed];\n";
+        }
+
+        // Mover al siguiente encabezado de empresa
+        actualEmpresa = actualEmpresa->derecha;
+        fila++;
+    }
+    archivo << "  }\n";
 
     archivo << "}\n";
     archivo.close();
@@ -128,6 +158,7 @@ void generarReporteGraphviz() {
     system("dot -Tpng reporte_matriz.dot -o reporte_matriz.png");
     cout << "Reporte generado como 'reporte_matriz.png'.\n";
 }
+
 private:
     // Obtener o insertar un encabezado (horizontal o vertical)
     NodoMatriz* obtenerOInsertarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
