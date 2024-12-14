@@ -86,6 +86,18 @@ public:
         return nullptr;
     }
     
+
+// Obtener encabezados horizontales (departamentos)
+    void obtenerEncabezadosHorizontales() {
+        NodoMatriz* actual = cabeza;
+        cout << "Encabezados horizontales (Departamentos):\n";
+        while (actual) {
+            cout << actual->nombreUsuario << " ";
+            actual = actual->derecha;
+        }
+        cout << endl;
+    }
+
 void generarReporteGraphviz() {
     ofstream archivo("reporte_matriz.dot");
     if (!archivo.is_open()) {
@@ -94,71 +106,44 @@ void generarReporteGraphviz() {
     }
 
     archivo << "digraph MatrizLayout {\n";
-    archivo << "  rankdir=TB;\n";  // Cambiar a top-to-bottom para mejor visualización
+    archivo << "  rankdir=LR;\n"; // Cambiar la dirección del gráfico a izquierda-derecha
     archivo << "  node [shape=box, style=filled, fontname=Arial];\n";
     archivo << "  splines=ortho;\n";
-    archivo << "  nodesep=0.5;\n";  // Separación entre nodos
-    archivo << "  ranksep=0.5;\n";  // Separación entre rangos
+    archivo << "  nodesep=0.5;\n";
+    archivo << "  ranksep=0.5;\n";
 
-    // Generar encabezados de departamentos (fila horizontal superior)
-    archivo << "  subgraph cluster_departamentos {\n";
-    archivo << "    style=filled;\n";
-    archivo << "    color=lightgrey;\n";
-    archivo << "    label=\"Departamentos\";\n";
-    
     NodoMatriz* actualDepartamento = cabeza;
-    int columna = 0;
+    int fila = 1;
+
+    // Añadir nodos de departamentos en la primera fila
+    archivo << "  { rank=same; ";
     while (actualDepartamento) {
-        archivo << "    departamento" << columna 
-                << " [label=\"" << actualDepartamento->nombreUsuario 
-                << "\", fillcolor=lightblue];\n";
-        
-        // Conectar departamentos horizontalmente
-        if (columna > 0) {
-            archivo << "    departamento" << (columna-1) 
-                    << " -> departamento" << columna << " [style=dashed];\n";
+        archivo << "\"" << actualDepartamento->nombreUsuario << "\" [fillcolor=lightblue]; ";
+        actualDepartamento = actualDepartamento->derecha;
+    }
+    archivo << "}\n";
+
+    actualDepartamento = cabeza;
+    while (actualDepartamento) {
+        NodoMatriz* actualEmpresa = actualDepartamento->abajo;
+        int columna = 1;
+
+        // Añadir nodos de empresas en la primera columna
+        while (actualEmpresa) {
+            archivo << "  \"" << actualEmpresa->nombreUsuario << "\" [fillcolor=lightgreen];\n";
+            actualEmpresa = actualEmpresa->abajo;
+            columna++;
         }
 
         actualDepartamento = actualDepartamento->derecha;
-        columna++;
-    }
-    archivo << "  }\n";
-
-    // Generar encabezados de empresas (columna vertical izquierda)
-    archivo << "  subgraph cluster_empresas {\n";
-    archivo << "    style=filled;\n";
-    archivo << "    color=lightgrey;\n";
-    archivo << "    label=\"Empresas\";\n";
-    
-    // Reiniciar recorrido desde la cabeza
-    actualDepartamento = cabeza;
-    NodoMatriz* actualEmpresa = actualDepartamento ? actualDepartamento->derecha : nullptr;
-    int fila = 0;
-    while (actualEmpresa) {
-        archivo << "    empresa" << fila 
-                << " [label=\"" << actualEmpresa->nombreUsuario 
-                << "\", fillcolor=lightgreen];\n";
-        
-        // Conectar empresas verticalmente
-        if (fila > 0) {
-            archivo << "    empresa" << (fila-1) 
-                    << " -> empresa" << fila << " [style=dashed];\n";
-        }
-
-        // Mover al siguiente encabezado de empresa
-        actualEmpresa = actualEmpresa->derecha;
         fila++;
     }
-    archivo << "  }\n";
 
     archivo << "}\n";
     archivo.close();
-
-    // Generar imagen PNG
     system("dot -Tpng reporte_matriz.dot -o reporte_matriz.png");
     cout << "Reporte generado como 'reporte_matriz.png'.\n";
 }
-
 private:
     // Obtener o insertar un encabezado (horizontal o vertical)
     NodoMatriz* obtenerOInsertarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
@@ -355,6 +340,8 @@ NodoAVL* buscarActivoEnAVL(NodoAVL* raiz, const string& idActivo) {
         return buscarActivoEnAVL(raiz->derecha, idActivo);
     }
 }
+
+
 
 // Estructura para el nodo de la lista circular de transacciones
 struct NodoTransaccion {

@@ -1,21 +1,10 @@
 digraph MatrizLayout {
-  rankdir=TB;
+  rankdir=LR;
   node [shape=box, style=filled, fontname=Arial];
   splines=ortho;
   nodesep=0.5;
   ranksep=0.5;
-  subgraph cluster_departamentos {
-    style=filled;
-    color=lightgrey;
-    label="Departamentos";
-    departamento0 [label="guate", fillcolor=lightblue];
-    departamento1 [label="telus", fillcolor=lightblue];
-    departamento0 -> departamento1 [style=dashed];
-  }
-  subgraph cluster_empresas {
-    style=filled;
-    color=lightgrey;
-    label="Empresas";
-    empresa0 [label="telus", fillcolor=lightgreen];
-  }
+  { rank=same; "guatemala" [fillcolor=lightblue]; "claro" [fillcolor=lightblue]; "peten" [fillcolor=lightblue]; "tigo" [fillcolor=lightblue]; }
+  "diego" [fillcolor=lightgreen];
+  "emilio" [fillcolor=lightgreen];
 }
