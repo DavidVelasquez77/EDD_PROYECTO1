@@ -144,7 +144,7 @@ void generarReporteGraphviz() {
     system("dot -Tpng reporte_matriz.dot -o reporte_matriz.png");
     cout << "Reporte generado como 'reporte_matriz.png'.\n";
 }
-private:
+public:
     // Obtener o insertar un encabezado (horizontal o vertical)
     NodoMatriz* obtenerOInsertarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
         NodoMatriz** referencia = esHorizontal ? &cabeza : &base->derecha;
@@ -340,6 +340,135 @@ NodoAVL* buscarActivoEnAVL(NodoAVL* raiz, const string& idActivo) {
         return buscarActivoEnAVL(raiz->derecha, idActivo);
     }
 }
+
+void generarSubArbolGraphvizConRaiz(ofstream& archivo, string nombreRaiz, NodoAVL* nodo, string padre = "") {
+    if (!nodo) return;
+
+    // Nombre del nodo actual
+    string nombreNodo = nombreRaiz + "_" + nodo->idActivo;
+    
+    // Escribir nodo actual solo si está disponible
+    if (nodo->disponible) {
+        archivo << "    \"" << nombreNodo << "\" [label=\"" 
+                << "ID: " << nodo->idActivo 
+                << "\\nNombre: " << nodo->nombreActivo 
+                << "\\nDesc: " << nodo->descripcion 
+                << "\\nTiempo Max: " << nodo->tiempoMaximoRenta 
+                << "\"];\n";
+
+        // Conexión con el padre
+        if (padre.empty()) {
+            // Conectar con la raíz (nombre de usuario)
+            archivo << "    \"" << nombreRaiz << "\" -> \"" << nombreNodo << "\";\n";
+        } else {
+            archivo << "    \"" << padre << "\" -> \"" << nombreNodo << "\";\n";
+        }
+    }
+
+    // Recorrer hijos izquierdo y derecho
+    generarSubArbolGraphvizConRaiz(archivo, nombreRaiz, nodo->izquierda, nombreNodo);
+    generarSubArbolGraphvizConRaiz(archivo, nombreRaiz, nodo->derecha, nombreNodo);
+}
+
+void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsuarios) {
+    ofstream archivo("reporte_activos_departamento.dot");
+    
+    if (!archivo.is_open()) {
+        cout << "Error al crear el archivo Graphviz." << endl;
+        return;
+    }
+
+    archivo << "digraph ArbolActivos {\n";
+    archivo << "    node [shape=rectangle];\n";
+    archivo << "    rankdir=TB;\n";
+
+    // Generar árbol para cada usuario
+    for (int i = 0; i < cantidadUsuarios; i++) {
+        // Buscar el usuario en la matriz
+        NodoMatriz* usuarioNodo = nullptr;
+        NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
+        while (nodoDepartamento) {
+            NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
+            while (nodoEmpresa) {
+                NodoMatriz* usuario = nodoEmpresa->abajo;
+                while (usuario) {
+                    if (usuario->nombreUsuario == usuarios[i]) {
+                        usuarioNodo = usuario;
+                        break;
+                    }
+                    usuario = usuario->abajo;
+                }
+                if (usuarioNodo) break;
+                nodoEmpresa = nodoEmpresa->derecha;
+            }
+            if (usuarioNodo) break;
+            nodoDepartamento = nodoDepartamento->derecha;
+        }
+
+        // Si encontramos el usuario, generamos su subárbol
+        if (usuarioNodo && usuarioNodo->arbolAVL) {
+            // Crear nodo raíz con nombre de usuario
+            archivo << "    \"" << usuarios[i] << "\" [label=\"" << usuarios[i] << "\"];\n";
+            
+            // Generar subárbol de activos
+            generarSubArbolGraphvizConRaiz(archivo, usuarios[i], usuarioNodo->arbolAVL);
+        }
+    }
+
+    archivo << "}\n";
+    archivo.close();
+
+    // Generar PNG
+    string comando = "dot -Tpng reporte_activos_departamento.dot -o reporte_activos_departamento.png";
+    system(comando.c_str());
+
+    cout << "Reporte Graphviz generado exitosamente en reporte_activos_departamento.png" << endl;
+}
+
+
+
+void reporteActivosDisponiblesDepartamento() {
+    string departamento;
+    cout << "Ingrese el departamento: ";
+    cin.ignore(); // Limpiar el buffer de entrada
+    getline(cin, departamento);
+
+    // Buscar el nodo de departamento en la matriz dispersa
+    NodoMatriz* nodoDepartamento = matrizUsuarios.buscarEncabezado(departamento, true);
+    
+    if (!nodoDepartamento) {
+        cout << "El departamento " << departamento << " no existe." << endl;
+        return;
+    }
+
+    // Vector para guardar usuarios (sin usar vector, simularemos con un array)
+    string usuarios[100]; // Tamaño suficiente para la mayoría de casos
+    int contadorUsuarios = 0;
+
+    // Mostrar usuarios del departamento
+    cout << "Usuarios en el departamento " << departamento << ":" << endl;
+    NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
+    while (nodoEmpresa) {
+        NodoMatriz* usuario = nodoEmpresa->abajo;
+        while (usuario) {
+            cout << "- " << usuario->nombreUsuario << endl;
+            usuarios[contadorUsuarios++] = usuario->nombreUsuario;
+            usuario = usuario->abajo;
+        }
+        nodoEmpresa = nodoEmpresa->derecha;
+    }
+
+    // Preguntar si desea generar reporte de Graphviz
+    char respuesta;
+    cout << "¿Desea generar un reporte de Graphviz? (s/n): ";
+    cin >> respuesta;
+
+    if (respuesta == 's' || respuesta == 'S') {
+        // Generar reporte de Graphviz
+        generarReporteGraphvizActivosDepartamento(usuarios, contadorUsuarios);
+    }
+}
+
 
 
 
@@ -1099,7 +1228,7 @@ void menuAdministrador() {
                 matrizUsuarios.generarReporteGraphviz();
                 break;
             case 3:
-                // Reporte activos disponibles de un departamento
+                reporteActivosDisponiblesDepartamento();
                 break;
             case 4:
                 // Reporte activos disponibles de una empresa

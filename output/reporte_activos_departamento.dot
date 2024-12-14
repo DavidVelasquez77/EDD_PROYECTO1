@@ -1,0 +1,14 @@
+digraph ArbolActivos {
+    node [shape=rectangle];
+    rankdir=TB;
+    "diego" [label="diego"];
+    "diego_qR4PK321Adyj2ts" [label="ID: qR4PK321Adyj2ts\nNombre: act1\nDesc: sss\nTiempo Max: 33"];
+    "diego" -> "diego_qR4PK321Adyj2ts";
+    "diego_9yLcbkNep2ro1y3" [label="ID: 9yLcbkNep2ro1y3\nNombre: act2\nDesc: sss\nTiempo Max: 44"];
+    "diego_qR4PK321Adyj2ts" -> "diego_9yLcbkNep2ro1y3";
+    "emilio" [label="emilio"];
+    "emilio_kF6T05GBafkD8RM" [label="ID: kF6T05GBafkD8RM\nNombre: act3\nDesc: ss\nTiempo Max: 33"];
+    "emilio" -> "emilio_kF6T05GBafkD8RM";
+    "emilio_f4V2P4JQnMdeZwZ" [label="ID: f4V2P4JQnMdeZwZ\nNombre: act4\nDesc: kkk\nTiempo Max: 54"];
+    "emilio_kF6T05GBafkD8RM" -> "emilio_f4V2P4JQnMdeZwZ";
+}
