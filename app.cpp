@@ -26,16 +26,18 @@ struct NodoAVL {
 
 // Nodo para la matriz dispersa
 struct NodoMatriz {
-    string nombreUsuario;
+   string nombreUsuario;
     string contrasena;
-    NodoAVL* arbolAVL; // Árbol AVL para almacenar activos
+    string departamento;  // Nuevo campo para guardar el departamento
+    NodoAVL* arbolAVL;
     NodoMatriz* derecha;
     NodoMatriz* abajo;
 
-    NodoMatriz(string usuario, string pass)
-        : nombreUsuario(usuario), contrasena(pass),
-        arbolAVL(nullptr), derecha(nullptr), abajo(nullptr) {}
+    NodoMatriz(string usuario, string pass, string dept = "")
+        : nombreUsuario(usuario), contrasena(pass), departamento(dept),
+          arbolAVL(nullptr), derecha(nullptr), abajo(nullptr) {}
 };
+
 
 // Clase para manejar la matriz dispersa
 class MatrizDispersa {
@@ -45,28 +47,28 @@ public:
 public:
     MatrizDispersa() : cabeza(nullptr) {}
 
-    // Insertar un usuario en la matriz
-    void insertarUsuario(string departamento, string empresa, string usuario, string contrasena) {
-        NodoMatriz* nodoDepartamento = obtenerOInsertarEncabezado(departamento, true);
-        NodoMatriz* nodoEmpresa = obtenerOInsertarEncabezado(empresa, false, nodoDepartamento);
+// Modificación del método insertarUsuario
+void insertarUsuario(string departamento, string empresa, string usuario, string contrasena) {
+    NodoMatriz* nodoDepartamento = obtenerOInsertarEncabezado(departamento, true);
+    NodoMatriz* nodoEmpresa = obtenerOInsertarEncabezado(empresa, false, nodoDepartamento);
 
-        // Crear el nodo del usuario si no existe
-        NodoMatriz* actual = nodoEmpresa->abajo;
-        while (actual != nullptr) {
-            if (actual->nombreUsuario == usuario) {
-                cout << "Error: El usuario ya existe en esta empresa y departamento.\n";
-                return;
-            }
-            actual = actual->abajo;
+    // Verificar si el usuario ya existe
+    NodoMatriz* actual = nodoEmpresa->abajo;
+    while (actual != nullptr) {
+        if (actual->nombreUsuario == usuario) {
+            cout << "Error: El usuario ya existe en esta empresa y departamento.\n";
+            return;
         }
-
-        NodoMatriz* nuevoUsuario = new NodoMatriz(usuario, contrasena);
-        nuevoUsuario->abajo = nodoEmpresa->abajo;
-        nodoEmpresa->abajo = nuevoUsuario;
-
-        cout << "Usuario registrado exitosamente en la matriz dispersa.\n";
+        actual = actual->abajo;
     }
 
+    // Crear nuevo usuario con su departamento
+    NodoMatriz* nuevoUsuario = new NodoMatriz(usuario, contrasena, departamento);
+    nuevoUsuario->abajo = nodoEmpresa->abajo;
+    nodoEmpresa->abajo = nuevoUsuario;
+
+    cout << "Usuario registrado exitosamente en la matriz dispersa.\n";
+}
     // Buscar un usuario en la matriz
     NodoMatriz* buscarUsuario(string departamento, string empresa, string usuario) {
         NodoMatriz* nodoDepartamento = buscarEncabezado(departamento, true);
@@ -430,47 +432,50 @@ void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsu
 void reporteActivosDisponiblesDepartamento() {
     string departamento;
     cout << "Ingrese el departamento: ";
-    cin.ignore(); // Limpiar el buffer de entrada
+    cin.ignore();
     getline(cin, departamento);
 
-    // Buscar el nodo de departamento en la matriz dispersa
-    NodoMatriz* nodoDepartamento = matrizUsuarios.buscarEncabezado(departamento, true);
-    
-    if (!nodoDepartamento) {
-        cout << "El departamento " << departamento << " no existe." << endl;
+    // Vector para guardar usuarios
+    string usuarios[100];
+    int contadorUsuarios = 0;
+
+    cout << "Usuarios en el departamento " << departamento << ":" << endl;
+
+    // Recorrer toda la matriz buscando usuarios del departamento específico
+    NodoMatriz* nodoDepartamentoActual = matrizUsuarios.cabeza;
+    while (nodoDepartamentoActual != nullptr) {
+        NodoMatriz* nodoEmpresa = nodoDepartamentoActual->derecha;
+        while (nodoEmpresa != nullptr) {
+            NodoMatriz* usuario = nodoEmpresa->abajo;
+            while (usuario != nullptr) {
+                // Verificar si el usuario pertenece al departamento buscado
+                if (usuario->departamento == departamento) {
+                    cout << "- Usuario: " << usuario->nombreUsuario 
+                         << " (Empresa: " << nodoEmpresa->nombreUsuario << ")" << endl;
+                    if (contadorUsuarios < 100) {
+                        usuarios[contadorUsuarios++] = usuario->nombreUsuario;
+                    }
+                }
+                usuario = usuario->abajo;
+            }
+            nodoEmpresa = nodoEmpresa->derecha;
+        }
+        nodoDepartamentoActual = nodoDepartamentoActual->derecha;
+    }
+
+    if (contadorUsuarios == 0) {
+        cout << "No se encontraron usuarios en el departamento " << departamento << endl;
         return;
     }
 
-    // Vector para guardar usuarios (sin usar vector, simularemos con un array)
-    string usuarios[100]; // Tamaño suficiente para la mayoría de casos
-    int contadorUsuarios = 0;
-
-    // Mostrar usuarios del departamento
-    cout << "Usuarios en el departamento " << departamento << ":" << endl;
-    NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
-    while (nodoEmpresa) {
-        NodoMatriz* usuario = nodoEmpresa->abajo;
-        while (usuario) {
-            cout << "- " << usuario->nombreUsuario << endl;
-            usuarios[contadorUsuarios++] = usuario->nombreUsuario;
-            usuario = usuario->abajo;
-        }
-        nodoEmpresa = nodoEmpresa->derecha;
-    }
-
-    // Preguntar si desea generar reporte de Graphviz
     char respuesta;
     cout << "¿Desea generar un reporte de Graphviz? (s/n): ";
     cin >> respuesta;
 
     if (respuesta == 's' || respuesta == 'S') {
-        // Generar reporte de Graphviz
         generarReporteGraphvizActivosDepartamento(usuarios, contadorUsuarios);
     }
 }
-
-
-
 
 // Estructura para el nodo de la lista circular de transacciones
 struct NodoTransaccion {
