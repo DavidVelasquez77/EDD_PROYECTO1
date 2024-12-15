@@ -1,0 +1,10 @@
+digraph ActivosRentados {
+    rankdir=LR;
+    node [shape=record, style=filled, color=lightblue];
+    label="Activos Rentados por diego";
+
+    f4V2P4JQnMdeZwZ [label="{ID: f4V2P4JQnMdeZwZ|Activo: activo4|Departamento: guatemala|Empresa: claro|Días de renta: 13|Fecha de renta: Sun Dec 15 11:31:05 2024
+}"];
+    kF6T05GBafkD8RM [label="{ID: kF6T05GBafkD8RM|Activo: activo3|Departamento: guatemala|Empresa: claro|Días de renta: 12|Fecha de renta: Sun Dec 15 11:30:23 2024
+}"];
+}

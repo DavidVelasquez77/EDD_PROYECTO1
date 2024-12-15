@@ -7,15 +7,26 @@ digraph MatrizDispersa {
   "ADMIN" -> "guatemala";
   "claro" [fillcolor=lightblue, group=3, pos="3,0!"];
   "guatemala" -> "claro";
-  "claro" -> "claro";
-  "solola" [fillcolor=lightblue, group=4, pos="4,0!"];
-  "claro" -> "solola";
-  "tigo" [fillcolor=lightblue, group=5, pos="5,0!"];
+  "peten" [fillcolor=lightblue, group=4, pos="4,0!"];
+  "claro" -> "peten";
+  "solola" [fillcolor=lightblue, group=5, pos="5,0!"];
+  "peten" -> "solola";
+  "tigo" [fillcolor=lightblue, group=6, pos="6,0!"];
   "solola" -> "tigo";
-  "tigo" -> "tigo";
+  "zacapa" [fillcolor=lightblue, group=7, pos="7,0!"];
+  "tigo" -> "zacapa";
+  "pepsi" [fillcolor=lightblue, group=8, pos="8,0!"];
+  "zacapa" -> "pepsi";
   "claro" [fillcolor=lightgreen, group=1, pos="0,-1!"];
-  "claro" -> "claro";
-  "tigo" [fillcolor=lightgreen, group=1, pos="0,-2!"];
-  "claro" -> "tigo";
-  { rank=same; "ADMIN" "guatemala" "claro" "solola" "tigo" }
+  "ADMIN" -> "claro";
+  "" [fillcolor=lightgreen, group=1, pos="0,-2!"];
+  "claro" -> "";
+  "telus" [fillcolor=lightgreen, group=1, pos="0,-3!"];
+  "" -> "telus";
+  "tigo" [fillcolor=lightgreen, group=1, pos="0,-4!"];
+  "telus" -> "tigo";
+  "pepsi" [fillcolor=lightgreen, group=1, pos="0,-5!"];
+  "tigo" -> "pepsi";
+  "" -> "xavi";
+  { rank=same; "ADMIN" "guatemala" "claro" "peten" "solola" "tigo" "zacapa" "pepsi" }
 }

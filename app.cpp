@@ -1011,6 +1011,128 @@ void rentarActivo() {
     );
 }
 
+void generarReporteGraphvizActivosRentados() {
+    // Arreglo para guardar usuarios
+    string usuarios[100];
+    int contadorUsuarios = 0;
+
+    cout << "Lista de Usuarios:" << endl;
+
+    // Recorrer toda la matriz y listar todos los usuarios
+    NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
+    while (nodoDepartamento != nullptr) {
+        NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
+        while (nodoEmpresa != nullptr) {
+            NodoMatriz* usuario = nodoEmpresa->abajo;
+            while (usuario != nullptr) {
+                cout << contadorUsuarios + 1 << ". Usuario: " << usuario->nombreUsuario
+                     << " (Departamento: " << usuario->departamento
+                     << ", Empresa: " << nodoEmpresa->nombreUsuario << ")" << endl;
+
+                if (contadorUsuarios < 100) {
+                    usuarios[contadorUsuarios++] = usuario->nombreUsuario;
+                }
+                usuario = usuario->abajo;
+            }
+            nodoEmpresa = nodoEmpresa->derecha;
+        }
+        nodoDepartamento = nodoDepartamento->derecha;
+    }
+
+    if (contadorUsuarios == 0) {
+        cout << "No se encontraron usuarios." << endl;
+        return;
+    }
+
+    int seleccion;
+    cout << "Seleccione el número de usuario para generar el reporte: ";
+    cin >> seleccion;
+
+    if (seleccion > 0 && seleccion <= contadorUsuarios) {
+        string usuarioSeleccionado = usuarios[seleccion-1];
+        
+        // Función para reemplazar comillas por espacios
+        auto reemplazarComillas = [](string& texto) {
+            for (int i = 0; texto[i] != '\0'; i++) {
+                if (texto[i] == '"') {
+                    texto[i] = ' ';
+                }
+            }
+        };
+
+        // Generar archivo DOT para Graphviz
+        ofstream archivo("reporte_activos_" + usuarioSeleccionado + ".dot");
+        if (!archivo) {
+            cout << "Error al crear el archivo de reporte." << endl;
+            return;
+        }
+
+        // Inicio del archivo DOT
+        archivo << "digraph ActivosRentados {\n";
+        archivo << "    rankdir=LR;\n";
+        archivo << "    node [shape=record, style=filled, color=lightblue];\n";
+        archivo << "    label=\"Activos Rentados por " << usuarioSeleccionado << "\";\n\n";
+
+        // Variables para contar y rastrear activos
+        int contadorActivos = 0;
+        bool tieneActivos = false;
+
+        // Recorrer las transacciones
+        NodoTransaccion* actual = listaTransacciones.cabeza;
+        do {
+            if (actual->usuario == usuarioSeleccionado) {
+                tieneActivos = true;
+                
+                // Preparar strings para escape de comillas
+                string activo = actual->activo;
+                string departamento = actual->departamento;
+                string empresa = actual->empresa;
+                
+                // Reemplazar comillas
+                reemplazarComillas(activo);
+                reemplazarComillas(departamento);
+                reemplazarComillas(empresa);
+
+                // Convertir fecha a string
+                char fechaBuffer[26];
+                ctime_s(fechaBuffer, sizeof(fechaBuffer), &actual->fechaRenta);
+
+                archivo << "    " << actual->idActivo << " [label=\"{ID del Activo: " << actual->idActivo 
+                        << "|Activo: " << activo
+                        << "|Departamento: " << departamento 
+                        << "|Empresa: " << empresa 
+                        << "|Dias de renta: " << actual->diasRenta 
+                        << "|Fecha de renta: " << fechaBuffer << "}\"];\n";
+                contadorActivos++;
+            }
+            actual = actual->siguiente;
+        } while (actual != listaTransacciones.cabeza);
+
+        // Cerrar el grafo
+        archivo << "}\n";
+        archivo.close();
+
+        if (!tieneActivos) {
+            cout << "El usuario " << usuarioSeleccionado << " no tiene activos rentados." << endl;
+            remove(("reporte_activos_" + usuarioSeleccionado + ".dot").c_str());
+            return;
+        }
+
+        // Generar PNG usando Graphviz
+        string comando = "dot -Tpng reporte_activos_" + usuarioSeleccionado + ".dot -o reporte_activos_" + usuarioSeleccionado + ".png";
+        int resultado = system(comando.c_str());
+
+        if (resultado == 0) {
+            cout << "Reporte generado exitosamente para " << usuarioSeleccionado 
+                 << ". Total de activos: " << contadorActivos << endl;
+            cout << "Archivo: reporte_activos_" << usuarioSeleccionado << ".png" << endl;
+        } else {
+            cout << "Error al generar el reporte de Graphviz." << endl;
+        }
+    } else {
+        cout << "Selección invalida." << endl;
+    }
+}
 // Función para devolver un activo (cambiar a disponible)
 void devolverActivo(string idActivo) {
     // Buscar el activo en todos los árboles AVL de usuarios
@@ -1569,7 +1691,7 @@ void menuAdministrador() {
                 reporteActivosDisponiblesUsuario();
                 break;
             case 7:
-                // Activos rentados por un usuario
+                generarReporteGraphvizActivosRentados();
                 break;
             case 8:
                 // Ordenar transacciones
