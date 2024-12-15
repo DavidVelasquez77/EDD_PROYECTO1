@@ -3,6 +3,7 @@
 #include <ctime>
 #include <fstream>
 #include <sstream>
+#include <limits>
 
 using namespace std;
 
@@ -797,7 +798,7 @@ void reporteActivosDisponiblesUsuario() {
             generarReporteGraphvizActivosUsuario(usuarios[seleccion-1]);
         }
     } else {
-        cout << "Selección inválida." << endl;
+        cout << "Selección invalida." << endl;
     }
 }
 // Estructura para el nodo de la lista circular de transacciones
@@ -1771,116 +1772,270 @@ void modificarActivo() {
     }
 }
 
-// menu de usuario normal
 void menuUsuario() {
     int opcion;
+    const string RESET = "\033[0m";
+    const string BLUE = "\033[1;34m";
+    const string GREEN = "\033[1;32m";
+    const string RED = "\033[1;31m";
+    const string YELLOW = "\033[1;33m";
+    const string CYAN = "\033[1;36m";
+
     do {
-        cout << "---------------------------------------------------" << endl;
-        cout << "-----Menu principal de un usuario ya ingresado-----" << endl;
-        cout << "---------------------------------------------------" << endl;
-        cout << "1. Agregar Activo" << endl;
-        cout << "2. Eliminar Activo" << endl;
-        cout << "3. Modificar Activo" << endl;
-        cout << "4. Rentar Activo" << endl;
-        cout << "5. Activos Rentados" << endl;
-        cout << "6. Mis Activos Rentados" << endl;
-        cout << "7. Cerrar Sesion" << endl;
-        cout << "Ingresar Opcion: ";
-        cin >> opcion;
+        // Limpia la pantalla
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
 
-        switch (opcion) {
-            case 1:
-            {
-                agregarActivo();   
-            }
-            break;
-            case 2:
-                eliminarActivo();
-                break;
-            case 3:
-                modificarActivo();
-                break;
-            case 4:
-                rentarActivo();
-                break;
-            case 5:
-                activosRentados();
-                break;
-            case 6:
-                mostrarMisActivosRentados();
-                break;
-            case 7:
-                // Cerrar sesion
-                break;
-            default:
-                cout << "Opcion invalida, intente de nuevo" << endl;
+        // Encabezado
+        cout << BLUE << "+================================================+" << RESET << endl;
+        cout << BLUE << "|                SISTEMA DE GESTION              |" << RESET << endl;
+        cout << BLUE << "|                  -= Usuario =-                 |" << RESET << endl;
+        cout << BLUE << "+================================================+" << RESET << endl << endl;
+
+        // Sección de Gestión de Activos
+        cout << CYAN << "  [Gestion de Activos]" << RESET << endl;
+        cout << YELLOW << "  [1] " << GREEN << "Agregar Nuevo Activo" << RESET << endl;
+        cout << YELLOW << "  [2] " << GREEN << "Eliminar Activo" << RESET << endl;
+        cout << YELLOW << "  [3] " << GREEN << "Modificar Activo" << RESET << endl << endl;
+
+        // Sección de Rentas
+        cout << CYAN << "  [Sistema de Rentas]" << RESET << endl;
+        cout << YELLOW << "  [4] " << GREEN << "Rentar Nuevo Activo" << RESET << endl;
+        cout << YELLOW << "  [5] " << GREEN << "Ver Todos los Activos en Renta" << RESET << endl;
+        cout << YELLOW << "  [6] " << GREEN << "Mis Activos Rentados" << RESET << endl << endl;
+
+        // Sección de Sesión
+        cout << CYAN << "  [Sesion]" << RESET << endl;
+        cout << YELLOW << "  [7] " << RED << "Cerrar Sesion" << RESET << endl << endl;
+
+        cout << BLUE << "  -> Seleccione una opcion: " << RESET;
+        
+        // Validación de entrada
+        if (!(cin >> opcion)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << RED << "\n  X Error: Ingrese un número valido" << RESET << endl;
+            system("pause");
+            continue;
         }
-    } while (opcion != 7);
-}
 
-// menu de usuario administrador
+        cout << endl;
+
+        try {
+            switch (opcion) {
+                case 1: {
+                    cout << CYAN << "  >> Iniciando registro de activo..." << RESET << endl;
+                    agregarActivo();
+                    break;
+                }
+                case 2: {
+                    cout << CYAN << "  >> Proceso de eliminación de activo..." << RESET << endl;
+                    eliminarActivo();
+                    break;
+                }
+                case 3: {
+                    cout << CYAN << "  >> Modificando activo..." << RESET << endl;
+                    modificarActivo();
+                    break;
+                }
+                case 4: {
+                    cout << CYAN << "  >> Iniciando proceso de renta..." << RESET << endl;
+                    rentarActivo();
+                    break;
+                }
+                case 5: {
+                    cout << CYAN << "  >> Consultando activos en renta..." << RESET << endl;
+                    activosRentados();
+                    break;
+                }
+                case 6: {
+                    cout << CYAN << "  >> Consultando mis activos rentados..." << RESET << endl;
+                    mostrarMisActivosRentados();
+                    break;
+                }
+                case 7: {
+                    cout << GREEN << "  <<-- Cerrando sesión..." << RESET << endl;
+                    cout << GREEN << "  ¡Hasta pronto! :3 " << RESET << endl;
+                    return;
+                }
+                default: {
+                    cout << RED << "  X Error: Opción invalida (1-7)" << RESET << endl;
+                }
+            }
+        } catch (const exception& e) {
+            cout << RED << "  X Error: " << e.what() << RESET << endl;
+        }
+
+        cout << endl;
+        cout << BLUE << "  Presione cualquier tecla para continuar..." << RESET << endl;
+        system("pause");
+    } while (true);
+}
 void menuAdministrador() {
     int opcion;
-    do {
-        cout << "******************************" << endl;
-        cout << "******Menu Administrador******" << endl;
-        cout << "******************************" << endl;
-        cout << "1. Registrar Usuario" << endl;
-        cout << "2. Reporte Matriz Dispersa" << endl;
-        cout << "3. Reporte Activos Disponibles de un Departamento" << endl;
-        cout << "4. Reporte Activos Disponibles de una Empresa" << endl;
-        cout << "5. Reporte Transacciones" << endl;
-        cout << "6. Reporte Activos de un Usuario" << endl;
-        cout << "7. Activos rentados por un Usuario" << endl;
-        cout << "8. Ordenar Transacciones" << endl;
-        cout << "9. Salir" << endl; // Nueva opción para salir
-        cout << "Ingresar Opcion: ";
-        cin >> opcion;
+    const string RESET = "\033[0m";
+    const string BLUE = "\033[1;34m";
+    const string GREEN = "\033[1;32m";
+    const string RED = "\033[1;31m";
+    const string YELLOW = "\033[1;33m";
+    const string CYAN = "\033[1;36m";
 
-        switch (opcion) {
-            case 1:
-                registrarUsuario();
-                break;
-            case 2:
-                matrizUsuarios.generarReporteGraphviz();
-                break;
-            case 3:
-                reporteActivosDisponiblesDepartamento();
-                break;
-            case 4:
-                reporteActivosDisponiblesEmpresa();
-                break;
-            case 5:
-                generarReporteGraphvizListaCircularDoble(listaTransacciones);
-                break;
-            case 6:
-                reporteActivosDisponiblesUsuario();
-                break;
-            case 7:
-                generarReporteGraphvizActivosRentados();
-                break;
-            case 8:
-                OrdenarTransacciones(listaTransacciones);
-                break;
-            case 9:
-                cout << "Regresando al menu principal...\n";
-                return; // Salir del menu y regresar al menu principal
-            default:
-                cout << "Opcion invalida. Intente de nuevo." << endl;
+    do {
+        // Limpia la pantalla
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
+
+        // Encabezado
+        cout << BLUE << "+================================================+" << RESET << endl;
+        cout << BLUE << "|                PANEL DE CONTROL                 |" << RESET << endl;
+        cout << BLUE << "|              -= Administrador =-                |" << RESET << endl;
+        cout << BLUE << "+================================================+" << RESET << endl << endl;
+
+        // Sección de Gestión de Usuarios
+        cout << CYAN << "  [Gestion de Usuarios]" << RESET << endl;
+        cout << YELLOW << "  [1] " << GREEN << "Registrar Nuevo Usuario" << RESET << endl << endl;
+
+        // Sección de Reportes
+        cout << CYAN << "  [Reportes y Visualizacion]" << RESET << endl;
+        cout << YELLOW << "  [2] " << GREEN << "Visualizar Matriz Dispersa" << RESET << endl;
+        cout << YELLOW << "  [3] " << GREEN << "Reporte de Activos por Departamento" << RESET << endl;
+        cout << YELLOW << "  [4] " << GREEN << "Reporte de Activos por Empresa" << RESET << endl;
+        cout << YELLOW << "  [5] " << GREEN << "Reporte de Transacciones" << RESET << endl;
+        cout << YELLOW << "  [6] " << GREEN << "Reporte de Activos por un Usuario" << RESET << endl;
+        cout << YELLOW << "  [7] " << GREEN << "Activos en Rentados por un Usuario" << RESET << endl << endl;
+
+        // Sección de Herramientas
+        cout << CYAN << "  [Herramientas]" << RESET << endl;
+        cout << YELLOW << "  [8] " << GREEN << "Ordenar Registro de Transacciones" << RESET << endl;
+        cout << YELLOW << "  [9] " << RED << "Regresar al Menu Principal O_O" << RESET << endl << endl;
+
+        cout << BLUE << "  -> Ingrese su opcion: " << RESET;
+        
+        // Validación de entrada
+        if (!(cin >> opcion)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << RED << "\n  X Error: Por favor ingrese un numero valido" << RESET << endl;
+            system("pause");
+            continue;
         }
+
+        cout << endl;
+
+        try {
+            switch (opcion) {
+                case 1: {
+                    cout << CYAN << "  >> Iniciando registro de usuario..." << RESET << endl;
+                    registrarUsuario();
+                    break;
+                }
+                case 2: {
+                    cout << CYAN << "  >> Generando visualización de matriz..." << RESET << endl;
+                    matrizUsuarios.generarReporteGraphviz();
+                    break;
+                }
+                case 3: {
+                    cout << CYAN << "  >> Preparando reporte de departamento..." << RESET << endl;
+                    reporteActivosDisponiblesDepartamento();
+                    break;
+                }
+                case 4: {
+                    cout << CYAN << "  >> Preparando reporte de empresa..." << RESET << endl;
+                    reporteActivosDisponiblesEmpresa();
+                    break;
+                }
+                case 5: {
+                    cout << CYAN << "  >> Generando historial de transacciones..." << RESET << endl;
+                    generarReporteGraphvizListaCircularDoble(listaTransacciones);
+                    break;
+                }
+                case 6: {
+                    cout << CYAN << "  >> Consultando activos por usuario..." << RESET << endl;
+                    reporteActivosDisponiblesUsuario();
+                    break;
+                }
+                case 7: {
+                    cout << CYAN << "  >> Generando reporte de activos rentados..." << RESET << endl;
+                    generarReporteGraphvizActivosRentados();
+                    break;
+                }
+                case 8: {
+                    cout << CYAN << "  >> Ordenando transacciones..." << RESET << endl;
+                    OrdenarTransacciones(listaTransacciones);
+                    break;
+                }
+                case 9: {
+                    cout << GREEN << "  <<-- Regresando al menu principal..." << RESET << endl;
+                    return;
+                }
+                default: {
+                    cout << RED << "  X Error: Opcion invalida (1-9)" << RESET << endl;
+                }
+            }
+        } catch (const exception& e) {
+            cout << RED << "  X Error: " << e.what() << RESET << endl;
+        }
+
+        cout << endl;
+        system("pause");
     } while (true);
+}
+int obtenerOpcionValida() {
+    int opcion;
+    while (true) {
+        if (cin >> opcion) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return opcion;
+        }
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "\033[1;31m[ERROR] Por favor, ingrese un numero valido.\033[0m" << endl;
+        cout << "\033[1;34mIngresar Opcion: \033[0m";
+    }
 }
 
 int main() {
     int opcion;
     do {
-        cout << "=================================================" << endl;
-        cout << "====Bienvenido al sistema de renta de activos====" << endl;
-        cout << "=================================================" << endl;
-        cout << "1. Iniciar sesion" << endl;
-        cout << "2. Salir" << endl;
-        cout << "Ingresar Opcion: ";
-        cin >> opcion;
+        // Códigos de color
+        const string RESET = "\033[0m";
+        const string BLUE = "\033[1;34m";
+        const string GREEN = "\033[1;32m";
+        const string RED = "\033[1;31m";
+        const string YELLOW = "\033[1;33m";
+
+        // Arte ASCII mejorado
+        const string HEADER = 
+            "+------------------------------------------------+\n"
+            "|               Sistema de Activos                 |\n"
+            "+------------------------------------------------+";
+            
+        const string WELCOME_SYMBOL = "  /\\_/\\  ";
+        const string LOCK_SYMBOL = " [>=<] ";
+
+        // Limpia la pantalla (funciona en Windows y Unix)
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
+
+        cout << BLUE << HEADER << RESET << endl;
+        cout << GREEN << WELCOME_SYMBOL << RESET << endl;
+        cout << BLUE << "       Bienvenido al sistema de renta de activos" << RESET << endl;
+        cout << BLUE << "+------------------------------------------------+" << RESET << endl << endl;
+        
+        cout << YELLOW << "[1]" << GREEN << " Iniciar sesion " << LOCK_SYMBOL << RESET << endl;
+        cout << YELLOW << "[2]" << RED << " Salir del sistema  O_O" << RESET << endl << endl;
+        
+        cout << BLUE << "Ingresar Opcion: " << RESET;
+        opcion = obtenerOpcionValida();
 
         switch (opcion) {
             case 1: {
@@ -1890,16 +2045,22 @@ int main() {
                 } else if (!esAdmin && matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario) != nullptr) {
                     menuUsuario();
                 } else {
-                    // No muestra menu si las credenciales no son válidas
-                    cout << "No se pudo iniciar sesion. Regresando al menu principal...\n";
+                    cout << RED << "X Error: Credenciales invalidas" << RESET << endl;
+                    cout << RED << "<<-- Regresando al menu principal..." << RESET << endl;
+                    system("pause");
                 }
                 break;
             }
-            case 2:
-                cout << "Saliendo del programa..." << endl;
+            case 2: {
+                cout << GREEN << ">> Cerrando el sistema..." << RESET << endl;
+                cout << GREEN << "¡Hasta pronto!" << RESET << endl;
+                system("pause");
                 break;
-            default:
-                cout << "Opcion invalida, intente de nuevo" << endl;
+            }
+            default: {
+                cout << RED << "X Error: Opcion invalida (1-2)" << RESET << endl;
+                system("pause");
+            }
         }
     } while (opcion != 2);
 
