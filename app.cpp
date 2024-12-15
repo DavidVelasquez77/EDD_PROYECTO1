@@ -601,6 +601,116 @@ void reporteActivosDisponiblesEmpresa() {
     }
 }
 
+
+void generarReporteGraphvizActivosUsuario(string nombreUsuario) {
+    ofstream archivo("reporte_activos_usuario.dot");
+    
+    if (!archivo.is_open()) {
+        cout << "Error al crear el archivo Graphviz." << endl;
+        return;
+    }
+
+    // Buscar el usuario en la matriz
+    NodoMatriz* usuarioNodo = nullptr;
+    NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
+    while (nodoDepartamento) {
+        NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
+        while (nodoEmpresa) {
+            NodoMatriz* usuario = nodoEmpresa->abajo;
+            while (usuario) {
+                if (usuario->nombreUsuario == nombreUsuario) {
+                    usuarioNodo = usuario;
+                    break;
+                }
+                usuario = usuario->abajo;
+            }
+            if (usuarioNodo) break;
+            nodoEmpresa = nodoEmpresa->derecha;
+        }
+        if (usuarioNodo) break;
+        nodoDepartamento = nodoDepartamento->derecha;
+    }
+
+    // Escribir encabezado del reporte
+    archivo << "digraph ArbolActivos {\n";
+    archivo << "    label=\"Reporte de Activos del Usuario: " << nombreUsuario << "\";\n";
+    archivo << "    labelloc=\"t\";\n";
+    archivo << "    fontsize=20;\n";
+    archivo << "    node [shape=rectangle];\n";
+    archivo << "    rankdir=TB;\n";
+
+    // Si encontramos el usuario, generamos su subárbol
+    if (usuarioNodo && usuarioNodo->arbolAVL) {
+        // Crear nodo raíz con nombre de usuario
+        archivo << "    \"" << nombreUsuario << "\" [label=\"" << nombreUsuario << "\"];\n";
+        
+        // Generar subárbol de activos
+        generarSubArbolGraphvizConRaiz(archivo, nombreUsuario, usuarioNodo->arbolAVL);
+    } else {
+        cout << "Usuario no encontrado." << endl;
+        return;
+    }
+
+    archivo << "}\n";
+    archivo.close();
+
+    // Generar PNG
+    string comando = "dot -Tpng reporte_activos_usuario.dot -o reporte_activos_usuario.png";
+    system(comando.c_str());
+
+    cout << "Reporte Graphviz generado exitosamente en reporte_activos_usuario.png" << endl;
+}
+
+void reporteActivosDisponiblesUsuario() {
+    // Vector para guardar usuarios
+    string usuarios[100];
+    int contadorUsuarios = 0;
+
+    cout << "Lista de Usuarios:" << endl;
+
+    // Recorrer toda la matriz y listar todos los usuarios
+    NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
+    while (nodoDepartamento != nullptr) {
+        NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
+        while (nodoEmpresa != nullptr) {
+            NodoMatriz* usuario = nodoEmpresa->abajo;
+            while (usuario != nullptr) {
+                cout << contadorUsuarios + 1 << ". Usuario: " << usuario->nombreUsuario 
+                     << " (Departamento: " << usuario->departamento 
+                     << ", Empresa: " << nodoEmpresa->nombreUsuario << ")" << endl;
+                
+                if (contadorUsuarios < 100) {
+                    usuarios[contadorUsuarios++] = usuario->nombreUsuario;
+                }
+                usuario = usuario->abajo;
+            }
+            nodoEmpresa = nodoEmpresa->derecha;
+        }
+        nodoDepartamento = nodoDepartamento->derecha;
+    }
+
+    if (contadorUsuarios == 0) {
+        cout << "No se encontraron usuarios." << endl;
+        return;
+    }
+
+    int seleccion;
+    cout << "Seleccione el número de usuario para generar el reporte: ";
+    cin >> seleccion;
+
+    if (seleccion > 0 && seleccion <= contadorUsuarios) {
+        char respuesta;
+        cout << "¿Desea generar un reporte de Graphviz para " 
+             << usuarios[seleccion-1] << "? (s/n): ";
+        cin >> respuesta;
+
+        if (respuesta == 's' || respuesta == 'S') {
+            generarReporteGraphvizActivosUsuario(usuarios[seleccion-1]);
+        }
+    } else {
+        cout << "Selección inválida." << endl;
+    }
+}
 // Estructura para el nodo de la lista circular de transacciones
 struct NodoTransaccion {
     string idTransaccion;
@@ -1366,7 +1476,7 @@ void menuAdministrador() {
                 // Reporte transacciones
                 break;
             case 6:
-                // Reporte activos de un usuario
+                reporteActivosDisponiblesUsuario();
                 break;
             case 7:
                 // Activos rentados por un usuario
