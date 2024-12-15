@@ -373,7 +373,7 @@ void generarSubArbolGraphvizConRaiz(ofstream& archivo, string nombreRaiz, NodoAV
     generarSubArbolGraphvizConRaiz(archivo, nombreRaiz, nodo->derecha, nombreNodo);
 }
 
-void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsuarios) {
+void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsuarios, const string& departamento) {
     ofstream archivo("reporte_activos_departamento.dot");
     
     if (!archivo.is_open()) {
@@ -381,7 +381,11 @@ void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsu
         return;
     }
 
+    // Escribir encabezado del reporte con el nombre del departamento
     archivo << "digraph ArbolActivos {\n";
+    archivo << "    label=\"Reporte del departamento: " << departamento << "\";\n";
+    archivo << "    labelloc=\"t\";\n";
+    archivo << "    fontsize=20;\n";
     archivo << "    node [shape=rectangle];\n";
     archivo << "    rankdir=TB;\n";
 
@@ -429,6 +433,7 @@ void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsu
 }
 
 
+
 void reporteActivosDisponiblesDepartamento() {
     string departamento;
     cout << "Ingrese el departamento: ";
@@ -473,9 +478,11 @@ void reporteActivosDisponiblesDepartamento() {
     cin >> respuesta;
 
     if (respuesta == 's' || respuesta == 'S') {
-        generarReporteGraphvizActivosDepartamento(usuarios, contadorUsuarios);
+        generarReporteGraphvizActivosDepartamento(usuarios, contadorUsuarios, departamento);
+
     }
 }
+
 
 // Estructura para el nodo de la lista circular de transacciones
 struct NodoTransaccion {
