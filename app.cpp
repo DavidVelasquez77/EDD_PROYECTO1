@@ -349,25 +349,26 @@ void generarSubArbolGraphvizConRaiz(ofstream& archivo, string nombreRaiz, NodoAV
     // Nombre del nodo actual
     string nombreNodo = nombreRaiz + "_" + nodo->idActivo;
     
-    // Escribir nodo actual solo si está disponible
-    if (nodo->disponible) {
-        archivo << "    \"" << nombreNodo << "\" [label=\"" 
-                << "ID: " << nodo->idActivo 
-                << "\\nNombre: " << nodo->nombreActivo 
-                << "\\nDesc: " << nodo->descripcion 
-                << "\\nTiempo Max: " << nodo->tiempoMaximoRenta 
-                << "\"];\n";
+    // Color basado en disponibilidad
+    string colorNodo = nodo->disponible ? "green" : "red";
+    
+    // Escribir nodo actual (disponible o no disponible)
+    archivo << "    \"" << nombreNodo << "\" [label=\"" 
+            << "ID: " << nodo->idActivo 
+            << "\\nNombre: " << nodo->nombreActivo 
+            << "\\nDesc: " << nodo->descripcion 
+            << "\\nTiempo Max: " << nodo->tiempoMaximoRenta 
+            << "\", color=\"" << colorNodo << "\", style=filled, fillcolor=\"" << colorNodo << "\"];\n";
 
-        // Conexión con el padre
-        if (padre.empty()) {
-            // Conectar con la raíz (nombre de usuario)
-            archivo << "    \"" << nombreRaiz << "\" -> \"" << nombreNodo << "\";\n";
-        } else {
-            archivo << "    \"" << padre << "\" -> \"" << nombreNodo << "\";\n";
-        }
+    // Conexión con el padre
+    if (padre.empty()) {
+        // Conectar con la raíz (nombre de usuario)
+        archivo << "    \"" << nombreRaiz << "\" -> \"" << nombreNodo << "\";\n";
+    } else {
+        archivo << "    \"" << padre << "\" -> \"" << nombreNodo << "\";\n";
     }
 
-    // Recorrer hijos izquierdo y derecho
+    // Recorrer hijos izquierdo y derecho siempre
     generarSubArbolGraphvizConRaiz(archivo, nombreRaiz, nodo->izquierda, nombreNodo);
     generarSubArbolGraphvizConRaiz(archivo, nombreRaiz, nodo->derecha, nombreNodo);
 }
@@ -426,7 +427,6 @@ void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsu
 
     cout << "Reporte Graphviz generado exitosamente en reporte_activos_departamento.png" << endl;
 }
-
 
 
 void reporteActivosDisponiblesDepartamento() {
