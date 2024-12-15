@@ -5,6 +5,6 @@ digraph MatrizLayout {
   nodesep=0.5;
   ranksep=0.5;
   { rank=same; "guatemala" [fillcolor=lightblue]; "claro" [fillcolor=lightblue]; "solola" [fillcolor=lightblue]; "tigo" [fillcolor=lightblue]; }
-  "diego" [fillcolor=lightgreen];
   "emilio" [fillcolor=lightgreen];
+  "diego" [fillcolor=lightgreen];
 }

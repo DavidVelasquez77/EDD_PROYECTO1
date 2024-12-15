@@ -1,16 +1,22 @@
 digraph ArbolActivos {
-    label="Reporte del departamento: guatemala";
+    label="Reporte del departamento: tigo";
     labelloc="t";
     fontsize=20;
     node [shape=rectangle];
     rankdir=TB;
     "diego" [label="diego"];
-    "diego_kF6T05GBafkD8RM" [label="ID: kF6T05GBafkD8RM\nNombre: activo3\nDesc: sss\nTiempo Max: 44", color="green", style=filled, fillcolor="green"];
+    "diego_kF6T05GBafkD8RM" [label="ID: kF6T05GBafkD8RM\nNombre: pendejo\nDesc: emilio\nTiempo Max: 34", color="green", style=filled, fillcolor="green"];
     "diego" -> "diego_kF6T05GBafkD8RM";
-    "diego_9yLcbkNep2ro1y3" [label="ID: 9yLcbkNep2ro1y3\nNombre: activo2\nDesc: ssss\nTiempo Max: 44", color="green", style=filled, fillcolor="green"];
-    "diego_kF6T05GBafkD8RM" -> "diego_9yLcbkNep2ro1y3";
-    "diego_f4V2P4JQnMdeZwZ" [label="ID: f4V2P4JQnMdeZwZ\nNombre: activo4\nDesc: ssss\nTiempo Max: 88", color="green", style=filled, fillcolor="green"];
-    "diego_9yLcbkNep2ro1y3" -> "diego_f4V2P4JQnMdeZwZ";
-    "diego_qR4PK321Adyj2ts" [label="ID: qR4PK321Adyj2ts\nNombre: activo1\nDesc: sss\nTiempo Max: 33", color="green", style=filled, fillcolor="green"];
+    "diego_qR4PK321Adyj2ts" [label="ID: qR4PK321Adyj2ts\nNombre: ram\nDesc: sssss\nTiempo Max: 23", color="red", style=filled, fillcolor="red"];
+    "diego_kF6T05GBafkD8RM" -> "diego_qR4PK321Adyj2ts";
+    "diego" [label="diego"];
+    "diego_kF6T05GBafkD8RM" [label="ID: kF6T05GBafkD8RM\nNombre: pendejo\nDesc: emilio\nTiempo Max: 34", color="green", style=filled, fillcolor="green"];
+    "diego" -> "diego_kF6T05GBafkD8RM";
+    "diego_qR4PK321Adyj2ts" [label="ID: qR4PK321Adyj2ts\nNombre: ram\nDesc: sssss\nTiempo Max: 23", color="red", style=filled, fillcolor="red"];
+    "diego_kF6T05GBafkD8RM" -> "diego_qR4PK321Adyj2ts";
+    "diego" [label="diego"];
+    "diego_kF6T05GBafkD8RM" [label="ID: kF6T05GBafkD8RM\nNombre: pendejo\nDesc: emilio\nTiempo Max: 34", color="green", style=filled, fillcolor="green"];
+    "diego" -> "diego_kF6T05GBafkD8RM";
+    "diego_qR4PK321Adyj2ts" [label="ID: qR4PK321Adyj2ts\nNombre: ram\nDesc: sssss\nTiempo Max: 23", color="red", style=filled, fillcolor="red"];
     "diego_kF6T05GBafkD8RM" -> "diego_qR4PK321Adyj2ts";
 }

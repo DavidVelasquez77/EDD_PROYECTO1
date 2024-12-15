@@ -26,18 +26,25 @@ struct NodoAVL {
 
 // Nodo para la matriz dispersa
 struct NodoMatriz {
-   string nombreUsuario;
-    string contrasena;
-    string departamento;  // Nuevo campo para guardar el departamento
-    NodoAVL* arbolAVL;
-    NodoMatriz* derecha;
-    NodoMatriz* abajo;
-
-    NodoMatriz(string usuario, string pass, string dept = "")
-        : nombreUsuario(usuario), contrasena(pass), departamento(dept),
-          arbolAVL(nullptr), derecha(nullptr), abajo(nullptr) {}
+    string nombreUsuario;     // Nombre del usuario
+    string contrasena;        // Contraseña del usuario
+    string departamento;      // Departamento del usuario
+    string empresa;           // Nuevo campo para guardar la empresa del usuario
+    NodoAVL* arbolAVL;        // Árbol AVL de activos
+    NodoMatriz* derecha;      // Puntero a la derecha en la matriz
+    NodoMatriz* abajo;        // Puntero hacia abajo en la matriz
+    
+    // Constructor actualizado para incluir empresa
+    NodoMatriz(string usuario, string pass, string dept = "", string emp = "")
+        : nombreUsuario(usuario), 
+          contrasena(pass), 
+          departamento(dept),
+          empresa(emp),
+          arbolAVL(nullptr), 
+          derecha(nullptr), 
+          abajo(nullptr) 
+    {} 
 };
-
 
 // Clase para manejar la matriz dispersa
 class MatrizDispersa {
@@ -63,7 +70,7 @@ void insertarUsuario(string departamento, string empresa, string usuario, string
     }
 
     // Crear nuevo usuario con su departamento
-    NodoMatriz* nuevoUsuario = new NodoMatriz(usuario, contrasena, departamento);
+    NodoMatriz* nuevoUsuario = new NodoMatriz(usuario, contrasena, departamento, empresa );
     nuevoUsuario->abajo = nodoEmpresa->abajo;
     nodoEmpresa->abajo = nuevoUsuario;
 
@@ -480,6 +487,55 @@ void reporteActivosDisponiblesDepartamento() {
     if (respuesta == 's' || respuesta == 'S') {
         generarReporteGraphvizActivosDepartamento(usuarios, contadorUsuarios, departamento);
 
+    }
+}
+
+void reporteActivosDisponiblesEmpresa() {
+    string empresa;
+    cout << "Ingrese el nombre de la empresa: ";
+    cin.ignore();
+    getline(cin, empresa);
+
+    // Vector para guardar usuarios
+    string usuarios[100];
+    int contadorUsuarios = 0;
+
+    cout << "Usuarios en la empresa " << empresa << ":" << endl;
+
+    // Recorrer toda la matriz buscando usuarios de la empresa específica
+    NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
+    while (nodoDepartamento != nullptr) {
+        NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
+        while (nodoEmpresa != nullptr) {
+            // Verificar si es la empresa buscada
+            if (nodoEmpresa->nombreUsuario == empresa) {
+                NodoMatriz* usuario = nodoEmpresa->abajo;
+                while (usuario != nullptr) {
+                    cout << "- Usuario: " << usuario->nombreUsuario 
+                         << " (Departamento: " << usuario->departamento << ")" << endl;
+                    if (contadorUsuarios < 100) {
+                        usuarios[contadorUsuarios++] = usuario->nombreUsuario;
+                    }
+                    usuario = usuario->abajo;
+                }
+                break; // Ya encontramos la empresa, no necesitamos seguir buscando
+            }
+            nodoEmpresa = nodoEmpresa->derecha;
+        }
+        nodoDepartamento = nodoDepartamento->derecha;
+    }
+
+    if (contadorUsuarios == 0) {
+        cout << "No se encontraron usuarios en la empresa " << empresa << endl;
+        return;
+    }
+
+    char respuesta;
+    cout << "¿Desea generar un reporte de Graphviz? (s/n): ";
+    cin >> respuesta;
+
+    if (respuesta == 's' || respuesta == 'S') {
+        generarReporteGraphvizActivosDepartamento(usuarios, contadorUsuarios, empresa);
     }
 }
 
@@ -1243,7 +1299,7 @@ void menuAdministrador() {
                 reporteActivosDisponiblesDepartamento();
                 break;
             case 4:
-                // Reporte activos disponibles de una empresa
+                reporteActivosDisponiblesEmpresa();
                 break;
             case 5:
                 // Reporte transacciones
