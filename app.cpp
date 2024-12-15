@@ -1368,6 +1368,72 @@ void mostrarActivosRentados() {
 }
 
 
+void generarReporteGraphvizListaCircularDoble(ListaTransacciones& lista) {
+    if (!lista.cabeza) {
+        cout << "No hay transacciones para generar el reporte Graphviz.\n";
+        return;
+    }
+
+    ofstream archivo("reporte_transacciones.dot");
+    if (!archivo) {
+        cerr << "Error al crear el archivo DOT.\n";
+        return;
+    }
+
+    // Inicio del archivo DOT
+    archivo << "digraph ListaTransacciones {\n";
+    archivo << "    rankdir=LR;\n";  // Dirección de izquierda a derecha
+    archivo << "    node [shape=record, style=filled, fillcolor=lightblue];\n";
+
+    NodoTransaccion* actual = lista.cabeza;
+    int contador = 0;
+
+    do {
+        // Escapar caracteres especiales en las cadenas
+        auto escaparCadena = [](const string& str) {
+            string resultado;
+            for (char c : str) {
+                switch (c) {
+                    case '"': resultado += "\\\""; break;
+                    case '\\': resultado += "\\\\"; break;
+                    default: resultado += c;
+                }
+            }
+            return resultado;
+        };
+
+        // Crear nodo con toda la información de la transacción
+        archivo << "    nodo" << contador << " [label=\"{ID Trans: " 
+                << escaparCadena(actual->idTransaccion) << "\\n"
+                << "ID Activo: " << escaparCadena(actual->idActivo) << "\\n"
+                << "Activo: " << escaparCadena(actual->activo) << "\\n"
+                << "Usuario: " << escaparCadena(actual->usuario) << "\\n"
+                << "Departamento: " << escaparCadena(actual->departamento) << "\\n"
+                << "Empresa: " << escaparCadena(actual->empresa) << "\\n"
+                << "Días Renta: " << actual->diasRenta << "\\n"
+                << "Fecha Renta: " << ctime(&actual->fechaRenta) << "}\"];\n";
+
+        // Crear enlaces
+        if (contador > 0) {
+            archivo << "    nodo" << (contador-1) << " -> nodo" << contador << " [color=blue];\n";
+            archivo << "    nodo" << contador << " -> nodo" << (contador-1) << " [color=red, style=dashed];\n";
+        }
+
+        actual = actual->siguiente;
+        contador++;
+    } while (actual != lista.cabeza);
+
+    // Enlazar el último con el primero para mostrar la circularidad
+    archivo << "    nodo" << (contador-1) << " -> nodo0 [color=green, constraint=false];\n";
+    archivo << "    nodo0 -> nodo" << (contador-1) << " [color=green, style=dashed, constraint=false];\n";
+
+    archivo << "}\n";
+    archivo.close();
+
+    // Generar PNG automáticamente
+    system("dot -Tpng reporte_transacciones.dot -o reporte_transacciones.png");
+    cout << "Reporte Graphviz generado: reporte_transacciones.png\n";
+}
 
 // Función para mostrar los activos de un árbol AVL en orden
 void mostrarActivosAVL(NodoAVL* nodo) {
@@ -1685,7 +1751,7 @@ void menuAdministrador() {
                 reporteActivosDisponiblesEmpresa();
                 break;
             case 5:
-                // Reporte transacciones
+                generarReporteGraphvizListaCircularDoble(listaTransacciones);
                 break;
             case 6:
                 reporteActivosDisponiblesUsuario();

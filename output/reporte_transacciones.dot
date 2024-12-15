@@ -1,0 +1,16 @@
+digraph ListaTransacciones {
+    rankdir=LR;
+    node [shape=record, style=filled, fillcolor=lightblue];
+    nodo0 [label="{ID Trans: SvylmXAfyFmxa3k\nID Activo: 3Q14rMl0rIJ474V\nActivo: activo4\nUsuario: xavi\nDepartamento: peten\nEmpresa: telus\nDías Renta: 33\nFecha Renta: Sun Dec 15 13:13:00 2024
+}"];
+    nodo1 [label="{ID Trans: aNabononClgXQZU\nID Activo: qR4PK321Adyj2ts\nActivo: activo1\nUsuario: emilio\nDepartamento: solola\nEmpresa: tigo\nDías Renta: 12\nFecha Renta: Sun Dec 15 13:08:32 2024
+}"];
+    nodo0 -> nodo1 [color=blue];
+    nodo1 -> nodo0 [color=red, style=dashed];
+    nodo2 [label="{ID Trans: f4V2P4JQnMdeZwZ\nID Activo: 9yLcbkNep2ro1y3\nActivo: activo2\nUsuario: diego\nDepartamento: guatemala\nEmpresa: claro\nDías Renta: 12\nFecha Renta: Sun Dec 15 13:06:59 2024
+}"];
+    nodo1 -> nodo2 [color=blue];
+    nodo2 -> nodo1 [color=red, style=dashed];
+    nodo2 -> nodo0 [color=green, constraint=false];
+    nodo0 -> nodo2 [color=green, style=dashed, constraint=false];
+}
