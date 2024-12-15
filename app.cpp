@@ -490,6 +490,68 @@ void reporteActivosDisponiblesDepartamento() {
     }
 }
 
+
+void generarReporteGraphvizActivosEmpresa(string* usuarios, int cantidadUsuarios, const string& empresa) {
+    ofstream archivo("reporte_activos_empresa.dot");
+    
+    if (!archivo.is_open()) {
+        cout << "Error al crear el archivo Graphviz." << endl;
+        return;
+    }
+
+    // Escribir encabezado del reporte con el nombre de la empresa
+    archivo << "digraph ArbolActivos {\n";
+    archivo << "    label=\"Reporte de empresa: " << empresa << "\";\n";
+    archivo << "    labelloc=\"t\";\n";
+    archivo << "    fontsize=20;\n";
+    archivo << "    node [shape=rectangle];\n";
+    archivo << "    rankdir=TB;\n";
+
+    // Generar árbol para cada usuario
+    for (int i = 0; i < cantidadUsuarios; i++) {
+        // Buscar el usuario en la matriz
+        NodoMatriz* usuarioNodo = nullptr;
+        NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
+        while (nodoDepartamento) {
+            NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
+            while (nodoEmpresa) {
+                NodoMatriz* usuario = nodoEmpresa->abajo;
+                while (usuario) {
+                    if (usuario->nombreUsuario == usuarios[i] && usuario->empresa == empresa) {
+                        usuarioNodo = usuario;
+                        break;
+                    }
+                    usuario = usuario->abajo;
+                }
+                if (usuarioNodo) break;
+                nodoEmpresa = nodoEmpresa->derecha;
+            }
+            if (usuarioNodo) break;
+            nodoDepartamento = nodoDepartamento->derecha;
+        }
+
+        // Si encontramos el usuario, generamos su subárbol
+        if (usuarioNodo && usuarioNodo->arbolAVL) {
+            // Crear nodo raíz con nombre de usuario
+            archivo << "    \"" << usuarios[i] << "\" [label=\"" << usuarios[i] << "\"];\n";
+            
+            // Generar subárbol de activos
+            generarSubArbolGraphvizConRaiz(archivo, usuarios[i], usuarioNodo->arbolAVL);
+        }
+    }
+
+    archivo << "}\n";
+    archivo.close();
+
+    // Generar PNG (corregir nombre de archivo de salida)
+    string comando = "dot -Tpng reporte_activos_empresa.dot -o reporte_activos_empresa.png";
+    system(comando.c_str());
+
+    cout << "Reporte Graphviz generado exitosamente en reporte_activos_empresa.png" << endl;
+}
+
+
+
 void reporteActivosDisponiblesEmpresa() {
     string empresa;
     cout << "Ingrese el nombre de la empresa: ";
@@ -507,18 +569,18 @@ void reporteActivosDisponiblesEmpresa() {
     while (nodoDepartamento != nullptr) {
         NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
         while (nodoEmpresa != nullptr) {
-            // Verificar si es la empresa buscada
-            if (nodoEmpresa->nombreUsuario == empresa) {
-                NodoMatriz* usuario = nodoEmpresa->abajo;
-                while (usuario != nullptr) {
+            // Buscar usuarios en esta empresa
+            NodoMatriz* usuario = nodoEmpresa->abajo;
+            while (usuario != nullptr) {
+                // Verificar si es la empresa buscada usando el nuevo campo empresa
+                if (usuario->empresa == empresa) {
                     cout << "- Usuario: " << usuario->nombreUsuario 
                          << " (Departamento: " << usuario->departamento << ")" << endl;
                     if (contadorUsuarios < 100) {
                         usuarios[contadorUsuarios++] = usuario->nombreUsuario;
                     }
-                    usuario = usuario->abajo;
                 }
-                break; // Ya encontramos la empresa, no necesitamos seguir buscando
+                usuario = usuario->abajo;
             }
             nodoEmpresa = nodoEmpresa->derecha;
         }
@@ -535,10 +597,9 @@ void reporteActivosDisponiblesEmpresa() {
     cin >> respuesta;
 
     if (respuesta == 's' || respuesta == 'S') {
-        generarReporteGraphvizActivosDepartamento(usuarios, contadorUsuarios, empresa);
+        generarReporteGraphvizActivosEmpresa(usuarios, contadorUsuarios, empresa);
     }
 }
-
 
 // Estructura para el nodo de la lista circular de transacciones
 struct NodoTransaccion {

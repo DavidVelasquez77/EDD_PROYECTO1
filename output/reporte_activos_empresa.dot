@@ -1,24 +1,18 @@
 digraph ArbolActivos {
-    label="Reporte del departamento: solola";
+    label="Reporte de empresa: claro";
     labelloc="t";
     fontsize=20;
     node [shape=rectangle];
     rankdir=TB;
-    "emilio" [label="emilio"];
-    "emilio_kF6T05GBafkD8RM" [label="ID: kF6T05GBafkD8RM\nNombre: activo3\nDesc: ssss\nTiempo Max: 33", color="green", style=filled, fillcolor="green"];
-    "emilio" -> "emilio_kF6T05GBafkD8RM";
+    "diego" [label="diego"];
+    "diego_qR4PK321Adyj2ts" [label="ID: qR4PK321Adyj2ts\nNombre: activo1\nDesc: ssss\nTiempo Max: 33", color="green", style=filled, fillcolor="green"];
+    "diego" -> "diego_qR4PK321Adyj2ts";
     "xavi" [label="xavi"];
     "xavi_9yLcbkNep2ro1y3" [label="ID: 9yLcbkNep2ro1y3\nNombre: activo2\nDesc: kkk\nTiempo Max: 23", color="green", style=filled, fillcolor="green"];
     "xavi" -> "xavi_9yLcbkNep2ro1y3";
-    "emilio" [label="emilio"];
-    "emilio_kF6T05GBafkD8RM" [label="ID: kF6T05GBafkD8RM\nNombre: activo3\nDesc: ssss\nTiempo Max: 33", color="green", style=filled, fillcolor="green"];
-    "emilio" -> "emilio_kF6T05GBafkD8RM";
     "xavi" [label="xavi"];
     "xavi_9yLcbkNep2ro1y3" [label="ID: 9yLcbkNep2ro1y3\nNombre: activo2\nDesc: kkk\nTiempo Max: 23", color="green", style=filled, fillcolor="green"];
     "xavi" -> "xavi_9yLcbkNep2ro1y3";
-    "emilio" [label="emilio"];
-    "emilio_kF6T05GBafkD8RM" [label="ID: kF6T05GBafkD8RM\nNombre: activo3\nDesc: ssss\nTiempo Max: 33", color="green", style=filled, fillcolor="green"];
-    "emilio" -> "emilio_kF6T05GBafkD8RM";
     "xavi" [label="xavi"];
     "xavi_9yLcbkNep2ro1y3" [label="ID: 9yLcbkNep2ro1y3\nNombre: activo2\nDesc: kkk\nTiempo Max: 23", color="green", style=filled, fillcolor="green"];
     "xavi" -> "xavi_9yLcbkNep2ro1y3";
