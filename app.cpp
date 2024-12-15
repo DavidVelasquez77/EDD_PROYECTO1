@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <limits>
 #include <ctime>
 #include <fstream>
 #include <sstream>
@@ -1435,6 +1434,107 @@ void generarReporteGraphvizListaCircularDoble(ListaTransacciones& lista) {
     cout << "Reporte Graphviz generado: reporte_transacciones.png\n";
 }
 
+void OrdenarTransacciones(ListaTransacciones& lista) {
+    // Verificar si la lista está vacía o tiene un solo elemento
+    if (!lista.cabeza || lista.cabeza->siguiente == lista.cabeza) {
+        cout << "La lista está vacia o tiene un solo elemento. No se puede ordenar.\n";
+        return;
+    }
+
+    // Menú para elegir tipo de ordenamiento
+    int opcion;
+    cout << "\n--- Ordenar Transacciones ---\n";
+    cout << "1. Ordenar Ascendentemente (A-Z, 1-9)\n";
+    cout << "2. Ordenar Descendentemente (Z-A, 9-1)\n";
+    cout << "Ingrese su opcion: ";
+    cin >> opcion;
+
+    // Validar entrada
+    if (opcion != 1 && opcion != 2) {
+        cout << "Opcion invalida. Se cancelo el ordenamiento.\n";
+        return;
+    }
+
+    // Definir si es ascendente o descendente
+    bool ascendente = (opcion == 1);
+
+    // Función de comparación personalizada para IDs alfanuméricos
+    auto compararIDs = [](const string& a, const string& b) -> bool {
+        // Comparación alfanumérica
+        int i = 0, j = 0;
+        while (i < a.length() && j < b.length()) {
+            // Si son dígitos, comparar como números
+            if (isdigit(a[i]) && isdigit(b[j])) {
+                long long numA = 0, numB = 0;
+                while (i < a.length() && isdigit(a[i])) {
+                    numA = numA * 10 + (a[i] - '0');
+                    i++;
+                }
+                while (j < b.length() && isdigit(b[j])) {
+                    numB = numB * 10 + (b[j] - '0');
+                    j++;
+                }
+                if (numA != numB) return numA < numB;
+            }
+            
+            // Si son letras, comparar como caracteres
+            if (a[i] != b[j]) return a[i] < b[j];
+            
+            i++;
+            j++;
+        }
+        
+        // Si una cadena es más corta, se considera menor
+        return a.length() < b.length();
+    };
+
+    // Contar número de nodos
+    int numNodos = 0;
+    NodoTransaccion* actual = lista.cabeza;
+    do {
+        numNodos++;
+        actual = actual->siguiente;
+    } while (actual != lista.cabeza);
+
+    // Algoritmo de ordenamiento burbuja adaptado a lista circular doblemente enlazada
+    for (int i = 0; i < numNodos - 1; i++) {
+        bool intercambiado = false;
+        actual = lista.cabeza;
+        
+        for (int j = 0; j < numNodos - i - 1; j++) {
+            NodoTransaccion* siguiente = actual->siguiente;
+            
+            // Comparar los IDs de transacción
+            bool necesitaIntercambio = ascendente ? 
+                compararIDs(siguiente->idTransaccion, actual->idTransaccion) : 
+                compararIDs(actual->idTransaccion, siguiente->idTransaccion);
+            
+            if (necesitaIntercambio) {
+                // Intercambiar información de los nodos (no los punteros)
+                swap(actual->idTransaccion, siguiente->idTransaccion);
+                swap(actual->idActivo, siguiente->idActivo);
+                swap(actual->activo, siguiente->activo);
+                swap(actual->usuario, siguiente->usuario);
+                swap(actual->departamento, siguiente->departamento);
+                swap(actual->empresa, siguiente->empresa);
+                swap(actual->diasRenta, siguiente->diasRenta);
+                swap(actual->fechaRenta, siguiente->fechaRenta);
+
+                intercambiado = true;
+            }
+            
+            actual = siguiente;
+        }
+        
+        // Si no hubo intercambios, la lista ya está ordenada
+        if (!intercambiado) break;
+    }
+
+    // Mensaje de confirmación
+    cout << "Transacciones ordenadas " 
+         << (ascendente ? "ascendentemente" : "descendentemente") 
+         << " por ID de Transacción.\n";
+}
 // Función para mostrar los activos de un árbol AVL en orden
 void mostrarActivosAVL(NodoAVL* nodo) {
     if (!nodo)
@@ -1760,7 +1860,7 @@ void menuAdministrador() {
                 generarReporteGraphvizActivosRentados();
                 break;
             case 8:
-                // Ordenar transacciones
+                OrdenarTransacciones(listaTransacciones);
                 break;
             case 9:
                 cout << "Regresando al menu principal...\n";
