@@ -1,10 +1,21 @@
-digraph MatrizLayout {
-  rankdir=LR;
+digraph MatrizDispersa {
   node [shape=box, style=filled, fontname=Arial];
   splines=ortho;
-  nodesep=0.5;
-  ranksep=0.5;
-  { rank=same; "guatemala" [fillcolor=lightblue]; "claro" [fillcolor=lightblue]; "solola" [fillcolor=lightblue]; "tigo" [fillcolor=lightblue]; }
-  "emilio" [fillcolor=lightgreen];
-  "diego" [fillcolor=lightgreen];
+  rankdir=TB;
+  "ADMIN" [fillcolor=gray, group=1, pos="0,0!"];
+  "guatemala" [fillcolor=lightblue, group=2, pos="2,0!"];
+  "ADMIN" -> "guatemala";
+  "claro" [fillcolor=lightblue, group=3, pos="3,0!"];
+  "guatemala" -> "claro";
+  "claro" -> "claro";
+  "solola" [fillcolor=lightblue, group=4, pos="4,0!"];
+  "claro" -> "solola";
+  "tigo" [fillcolor=lightblue, group=5, pos="5,0!"];
+  "solola" -> "tigo";
+  "tigo" -> "tigo";
+  "claro" [fillcolor=lightgreen, group=1, pos="0,-1!"];
+  "claro" -> "claro";
+  "tigo" [fillcolor=lightgreen, group=1, pos="0,-2!"];
+  "claro" -> "tigo";
+  { rank=same; "ADMIN" "guatemala" "claro" "solola" "tigo" }
 }

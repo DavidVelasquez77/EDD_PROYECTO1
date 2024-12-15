@@ -107,6 +107,35 @@ void insertarUsuario(string departamento, string empresa, string usuario, string
         cout << endl;
     }
 
+// Obtener grupo (columna) según el departamento
+int obtenerGrupoDepartamento(string departamento) {
+    NodoMatriz* actual = cabeza;
+    int grupo = 2; // El grupo empieza en 2 después del nodo ADMIN
+    while (actual) {
+        if (actual->nombreUsuario == departamento) return grupo;
+        actual = actual->derecha;
+        grupo++;
+    }
+    return grupo; // Devuelve la posición del departamento
+}
+
+// Obtener fila según la empresa
+int obtenerFilaEmpresa(string empresa) {
+    NodoMatriz* actual = cabeza;
+    NodoMatriz* actualEmpresa = nullptr;
+    int fila = 2; // La fila empieza en 2 después del nodo ADMIN
+    while (actual) {
+        actualEmpresa = actual->abajo;
+        while (actualEmpresa) {
+            if (actualEmpresa->empresa == empresa) return fila;
+            actualEmpresa = actualEmpresa->abajo;
+            fila++;
+        }
+        actual = actual->derecha;
+    }
+    return fila; // Devuelve la posición de la empresa
+}
+
 void generarReporteGraphviz() {
     ofstream archivo("reporte_matriz.dot");
     if (!archivo.is_open()) {
@@ -114,45 +143,106 @@ void generarReporteGraphviz() {
         return;
     }
 
-    archivo << "digraph MatrizLayout {\n";
-    archivo << "  rankdir=LR;\n"; // Cambiar la dirección del gráfico a izquierda-derecha
+    archivo << "digraph MatrizDispersa {\n";
     archivo << "  node [shape=box, style=filled, fontname=Arial];\n";
     archivo << "  splines=ortho;\n";
-    archivo << "  nodesep=0.5;\n";
-    archivo << "  ranksep=0.5;\n";
+    archivo << "  rankdir=TB;\n";
 
-    NodoMatriz* actualDepartamento = cabeza;
-    int fila = 1;
+    // Encabezado principal "ADMIN"
+    archivo << "  \"ADMIN\" [fillcolor=gray, group=1, pos=\"0,0!\"];\n";
 
-    // Añadir nodos de departamentos en la primera fila
-    archivo << "  { rank=same; ";
+// 1. Generar los encabezados de departamentos (primera fila)
+NodoMatriz* actualDepartamento = cabeza;
+NodoMatriz* anteriorDepartamento = nullptr;
+int columnaDepartamento = 2; // Initialize columnaDepartamento
+while (actualDepartamento) {
+    archivo << "  \"" << actualDepartamento->nombreUsuario 
+            << "\" [fillcolor=lightblue, group=" << columnaDepartamento 
+            << ", pos=\"" << columnaDepartamento << ",0!\"];\n";
+    
+    // Conectar departamentos desde ADMIN
+    if (anteriorDepartamento != nullptr) {
+        archivo << "  \"" << anteriorDepartamento->nombreUsuario 
+                << "\" -> \"" << actualDepartamento->nombreUsuario << "\";\n";
+    } else {
+        archivo << "  \"ADMIN\" -> \"" << actualDepartamento->nombreUsuario << "\";\n";
+    }
+    
+    anteriorDepartamento = actualDepartamento;
+    actualDepartamento = actualDepartamento->derecha;
+    columnaDepartamento++;
+}
+
+// 2. Generar los encabezados de empresas (primera columna)
+actualDepartamento = cabeza;
+NodoMatriz* anteriorEmpresa = nullptr;
+int filaEmpresa = 1;
+while (actualDepartamento) {
+    NodoMatriz* actualEmpresa = actualDepartamento->abajo;
+    while (actualEmpresa) {
+        archivo << "  \"" << actualEmpresa->empresa 
+                << "\" [fillcolor=lightgreen, group=1, pos=\"0," << -filaEmpresa << "!\"];\n";
+        
+        // Conectar empresas desde ADMIN
+        if (anteriorEmpresa != nullptr) {
+            archivo << "  \"" << anteriorEmpresa->empresa 
+                    << "\" -> \"" << actualEmpresa->empresa << "\";\n";
+        } else {
+            archivo << "  \"ADMIN\" -> \"" << actualEmpresa->empresa << "\";\n";
+        }
+        
+        anteriorEmpresa = actualEmpresa;
+        actualEmpresa = actualEmpresa->abajo;
+        filaEmpresa++;
+    }
+    actualDepartamento = actualDepartamento->derecha;
+}
+
+// 3. Generar conexiones de usuarios (similar patrón)
+actualDepartamento = cabeza;
+while (actualDepartamento) {
+    NodoMatriz* actualEmpresa = actualDepartamento->abajo;
+    while (actualEmpresa) {
+        NodoMatriz* anteriorUsuario = nullptr;
+        NodoMatriz* actualUsuario = actualEmpresa->abajo;
+        
+        while (actualUsuario) {
+            // Conectar usuarios a su empresa
+            if (anteriorUsuario != nullptr) {
+                archivo << "  \"" << anteriorUsuario->nombreUsuario 
+                        << "\" -> \"" << actualUsuario->nombreUsuario << "\";\n";
+            } else {
+                archivo << "  \"" << actualEmpresa->empresa 
+                        << "\" -> \"" << actualUsuario->nombreUsuario << "\";\n";
+            }
+            
+            anteriorUsuario = actualUsuario;
+            actualUsuario = actualUsuario->abajo;
+        }
+        
+        actualEmpresa = actualEmpresa->abajo;
+    }
+    
+    actualDepartamento = actualDepartamento->derecha;
+}
+    // Agrupar los nodos en la primera fila y columna
+    archivo << "  { rank=same; \"ADMIN\" ";
+    actualDepartamento = cabeza;
     while (actualDepartamento) {
-        archivo << "\"" << actualDepartamento->nombreUsuario << "\" [fillcolor=lightblue]; ";
+        archivo << "\"" << actualDepartamento->nombreUsuario << "\" ";
         actualDepartamento = actualDepartamento->derecha;
     }
     archivo << "}\n";
-
-    actualDepartamento = cabeza;
-    while (actualDepartamento) {
-        NodoMatriz* actualEmpresa = actualDepartamento->abajo;
-        int columna = 1;
-
-        // Añadir nodos de empresas en la primera columna
-        while (actualEmpresa) {
-            archivo << "  \"" << actualEmpresa->nombreUsuario << "\" [fillcolor=lightgreen];\n";
-            actualEmpresa = actualEmpresa->abajo;
-            columna++;
-        }
-
-        actualDepartamento = actualDepartamento->derecha;
-        fila++;
-    }
 
     archivo << "}\n";
     archivo.close();
-    system("dot -Tpng reporte_matriz.dot -o reporte_matriz.png");
+
+    // Generar la imagen usando Graphviz con layout específico
+    system("dot -Tpng -Kfdp reporte_matriz.dot -o reporte_matriz.png");
     cout << "Reporte generado como 'reporte_matriz.png'.\n";
 }
+
+
 public:
     // Obtener o insertar un encabezado (horizontal o vertical)
     NodoMatriz* obtenerOInsertarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
