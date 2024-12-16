@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
-#include <ctime>
-#include <fstream>
-#include <sstream>
-#include <limits>
+#include <ctime> // para la fecha de la transaccion
+#include <fstream>// la use para graphiz 
+#include <sstream> // la use para graphiz
+#include <limits> // la use para el bufer 
 
 using namespace std;
 
@@ -54,7 +54,7 @@ public:
 public:
     MatrizDispersa() : cabeza(nullptr) {}
 
-// Modificación del método insertarUsuario
+// funcion para insertar usuario
 void insertarUsuario(string departamento, string empresa, string usuario, string contrasena) {
     NodoMatriz* nodoDepartamento = obtenerOInsertarEncabezado(departamento, true);
     NodoMatriz* nodoEmpresa = obtenerOInsertarEncabezado(empresa, false, nodoDepartamento);
@@ -107,7 +107,7 @@ void insertarUsuario(string departamento, string empresa, string usuario, string
         cout << endl;
     }
 
-// Obtener grupo (columna) según el departamento
+// Obtener grupo  según el departamento
 int obtenerGrupoDepartamento(string departamento) {
     NodoMatriz* actual = cabeza;
     int grupo = 2; // El grupo empieza en 2 después del nodo ADMIN
@@ -133,7 +133,7 @@ int obtenerFilaEmpresa(string empresa) {
         }
         actual = actual->derecha;
     }
-    return fila; // Devuelve la posición de la empresa
+    return fila; // Devuelve la posicion de la empresa
 }
 
 void generarReporteGraphviz() {
@@ -148,13 +148,13 @@ void generarReporteGraphviz() {
     archivo << "  splines=ortho;\n";
     archivo << "  rankdir=TB;\n";
 
-    // Encabezado principal "ADMIN"
+    // encabezado principal "ADMIN"
     archivo << "  \"ADMIN\" [fillcolor=gray, group=1, pos=\"0,0!\"];\n";
 
-// 1. Generar los encabezados de departamentos (primera fila)
+// 1. generar los encabezados de departamentos (primera fila)
 NodoMatriz* actualDepartamento = cabeza;
 NodoMatriz* anteriorDepartamento = nullptr;
-int columnaDepartamento = 2; // Initialize columnaDepartamento
+int columnaDepartamento = 2; // initialize columnaDepartamento
 while (actualDepartamento) {
     archivo << "  \"" << actualDepartamento->nombreUsuario 
             << "\" [fillcolor=lightblue, group=" << columnaDepartamento 
@@ -198,7 +198,7 @@ while (actualDepartamento) {
     actualDepartamento = actualDepartamento->derecha;
 }
 
-// 3. Generar conexiones de usuarios (similar patrón)
+// 3. Generar conexiones de usuarios 
 actualDepartamento = cabeza;
 while (actualDepartamento) {
     NodoMatriz* actualEmpresa = actualDepartamento->abajo;
@@ -237,14 +237,13 @@ while (actualDepartamento) {
     archivo << "}\n";
     archivo.close();
 
-    // Generar la imagen usando Graphviz con layout específico
     system("dot -Tpng -Kfdp reporte_matriz.dot -o reporte_matriz.png");
     cout << "Reporte generado como 'reporte_matriz.png'.\n";
 }
 
 
 public:
-    // Obtener o insertar un encabezado (horizontal o vertical)
+    // obtener o insertar un encabezado (horizontal o vertical)
     NodoMatriz* obtenerOInsertarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
         NodoMatriz** referencia = esHorizontal ? &cabeza : &base->derecha;
 
@@ -262,7 +261,7 @@ public:
         return *referencia;
     }
 
-    // Buscar un encabezado (horizontal o vertical)
+    // buscar un encabezado (horizontal o vertical)
     NodoMatriz* buscarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
         NodoMatriz* actual = esHorizontal ? cabeza : base->derecha;
         while (actual != nullptr) {
