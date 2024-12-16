@@ -7,11 +7,11 @@
 
 using namespace std;
 
-// Variables globales para almacenar la sesion del usuario
+
 
 string nombreUsuario, contrasena, departamento, empresa;
 
-// Nodo para el árbol AVL
+//estructura del nodo de avl de activos 
 struct NodoAVL {
     string idActivo;
     string nombreActivo;
@@ -24,17 +24,17 @@ struct NodoAVL {
 };
 
 
-// Nodo para la matriz dispersa
+// estrtuctura del nodo de la matris dispoersa 
 struct NodoMatriz {
-    string nombreUsuario;     // Nombre del usuario
-    string contrasena;        // Contraseña del usuario
-    string departamento;      // Departamento del usuario
-    string empresa;           // Nuevo campo para guardar la empresa del usuario
-    NodoAVL* arbolAVL;        // Árbol AVL de activos
-    NodoMatriz* derecha;      // Puntero a la derecha en la matriz
-    NodoMatriz* abajo;        // Puntero hacia abajo en la matriz
+    string nombreUsuario;   
+    string contrasena;      
+    string departamento;    
+    string empresa;           
+    NodoAVL* arbolAVL;        
+    NodoMatriz* derecha;      
+    NodoMatriz* abajo;        
     
-    // Constructor actualizado para incluir empresa
+
     NodoMatriz(string usuario, string pass, string dept = "", string emp = "")
         : nombreUsuario(usuario), 
           contrasena(pass), 
@@ -46,7 +46,7 @@ struct NodoMatriz {
     {} 
 };
 
-// Clase para manejar la matriz dispersa
+// clase de matriz dispersita 
 class MatrizDispersa {
 public:
     NodoMatriz* cabeza;
@@ -275,6 +275,7 @@ public:
     }
 };
 
+// nodo para un nuevo activo en el arbol avl
 NodoAVL* crearNodoAVL(string id, string nombre, string descripcion, int tiempoMaximo) {
     NodoAVL* nuevoNodo = new NodoAVL();
     nuevoNodo->idActivo = id;
@@ -288,15 +289,17 @@ NodoAVL* crearNodoAVL(string id, string nombre, string descripcion, int tiempoMa
     return nuevoNodo;
 }
 
-
+// ovtener la altura de un nodo
 int obtenerAltura(NodoAVL* nodo) {
     return nodo ? nodo->altura : 0;
 }
 
+// este nomas pa balancear el arbol
 int obtenerBalance(NodoAVL* nodo) {
     return nodo ? obtenerAltura(nodo->izquierda) - obtenerAltura(nodo->derecha) : 0;
 }
 
+// rotar a la derecha
 NodoAVL* rotarDerecha(NodoAVL* y) {
     NodoAVL* x = y->izquierda;
     NodoAVL* T2 = x->derecha;
@@ -310,6 +313,7 @@ NodoAVL* rotarDerecha(NodoAVL* y) {
     return x;
 }
 
+// rotar a la izquierda
 NodoAVL* rotarIzquierda(NodoAVL* x) {
     NodoAVL* y = x->derecha;
     NodoAVL* T2 = y->izquierda;
@@ -323,6 +327,7 @@ NodoAVL* rotarIzquierda(NodoAVL* x) {
     return y;
 }
 
+// este nomas pa insertar un nuevo nodo en el arbol 
 NodoAVL* insertarEnAVL(NodoAVL* nodo, string id, string nombre, string descripcion, int tiempoMaximo) {
     if (!nodo)
         return crearNodoAVL(id, nombre, descripcion, tiempoMaximo);
@@ -336,7 +341,7 @@ NodoAVL* insertarEnAVL(NodoAVL* nodo, string id, string nombre, string descripci
 
     nodo->altura = 1 + max(obtenerAltura(nodo->izquierda), obtenerAltura(nodo->derecha));
     int balance = obtenerBalance(nodo);
-
+ // diferentes casos para balancear el arbol si se me fue alguno pos F 
     if (balance > 1 && id < nodo->izquierda->idActivo)
         return rotarDerecha(nodo);
     if (balance < -1 && id > nodo->derecha->idActivo)
@@ -353,17 +358,16 @@ NodoAVL* insertarEnAVL(NodoAVL* nodo, string id, string nombre, string descripci
     return nodo;
 }
 
-
 MatrizDispersa matrizUsuarios; 
 
-// Función auxiliar para encontrar el nodo con el valor mínimo en un árbol AVL
+// funcion auxiliar para encontrar el nodo con el valor mino del avl
 NodoAVL* encontrarMinimo(NodoAVL* nodo) {
     while (nodo->izquierda != nullptr)
         nodo = nodo->izquierda;
     return nodo;
 }
 
-// Función para eliminar un nodo del árbol AVL
+// se lo mocha de arbol totalmente no parcial 
 NodoAVL* eliminarNodoAVL(NodoAVL* raiz, string id) {
     if (!raiz)
         return raiz;
@@ -373,13 +377,13 @@ NodoAVL* eliminarNodoAVL(NodoAVL* raiz, string id) {
     else if (id > raiz->idActivo)
         raiz->derecha = eliminarNodoAVL(raiz->derecha, id);
     else {
-        // Nodo encontrado
+        //  si el nodo tiene un hijo o no
         if (!raiz->izquierda || !raiz->derecha) {
             NodoAVL* temp = raiz->izquierda ? raiz->izquierda : raiz->derecha;
             delete raiz;
             return temp;
         } else {
-            // Nodo con dos hijos
+            // si tiene dos hijos  
             NodoAVL* temp = encontrarMinimo(raiz->derecha);
             raiz->idActivo = temp->idActivo;
             raiz->nombreActivo = temp->nombreActivo;
@@ -413,10 +417,9 @@ NodoAVL* eliminarNodoAVL(NodoAVL* raiz, string id) {
 void mostrarActivosDisponiblesAVL(NodoAVL* nodo) {
     if (!nodo) return;
 
-    // Recorrido en orden (inorder traversal)
+    // inorder traversal para mostrar los activos ordenados
     mostrarActivosDisponiblesAVL(nodo->izquierda);
 
-    // Mostrar solo los activos disponibles
     if (nodo->disponible) {
         cout << "ID Activo: " << nodo->idActivo << endl;
         cout << "Nombre: " << nodo->nombreActivo << endl;
@@ -428,6 +431,7 @@ void mostrarActivosDisponiblesAVL(NodoAVL* nodo) {
     mostrarActivosDisponiblesAVL(nodo->derecha);
 }
 
+// funcion para buscar un activo en el avl 
 NodoAVL* buscarActivoEnAVL(NodoAVL* raiz, const string& idActivo) {
     if (!raiz) return nullptr;
 
@@ -440,16 +444,17 @@ NodoAVL* buscarActivoEnAVL(NodoAVL* raiz, const string& idActivo) {
     }
 }
 
+// funcion del esqueleto para arboles en graphiz 
 void generarSubArbolGraphvizConRaiz(ofstream& archivo, string nombreRaiz, NodoAVL* nodo, string padre = "") {
     if (!nodo) return;
 
-    // Nombre del nodo actual
+    
     string nombreNodo = nombreRaiz + "_" + nodo->idActivo;
     
-    // Color basado en disponibilidad
+    // vamos a definir el color basado en disponibilidad verde es que si esta, rojo que no 
     string colorNodo = nodo->disponible ? "green" : "red";
     
-    // Escribir nodo actual (disponible o no disponible)
+ 
     archivo << "    \"" << nombreNodo << "\" [label=\"" 
             << "ID: " << nodo->idActivo 
             << "\\nNombre: " << nodo->nombreActivo 
@@ -457,19 +462,20 @@ void generarSubArbolGraphvizConRaiz(ofstream& archivo, string nombreRaiz, NodoAV
             << "\\nTiempo Max: " << nodo->tiempoMaximoRenta 
             << "\", color=\"" << colorNodo << "\", style=filled, fillcolor=\"" << colorNodo << "\"];\n";
 
-    // Conexión con el padre
+    // conexiones con el nodo padre 
     if (padre.empty()) {
-        // Conectar con la raíz (nombre de usuario)
+        //  nodo raiz el nombre del usuario 
         archivo << "    \"" << nombreRaiz << "\" -> \"" << nombreNodo << "\";\n";
     } else {
         archivo << "    \"" << padre << "\" -> \"" << nombreNodo << "\";\n";
     }
 
-    // Recorrer hijos izquierdo y derecho siempre
+    // los hijos se recorreran de izquierda a derecha
     generarSubArbolGraphvizConRaiz(archivo, nombreRaiz, nodo->izquierda, nombreNodo);
     generarSubArbolGraphvizConRaiz(archivo, nombreRaiz, nodo->derecha, nombreNodo);
 }
 
+// funcion para generar el reporte de activos en graphviz dependiendo el depa 
 void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsuarios, const string& departamento) {
     ofstream archivo("reporte_activos_departamento.dot");
     
@@ -478,7 +484,6 @@ void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsu
         return;
     }
 
-    // Escribir encabezado del reporte con el nombre del departamento
     archivo << "digraph ArbolActivos {\n";
     archivo << "    label=\"Reporte del departamento: " << departamento << "\";\n";
     archivo << "    labelloc=\"t\";\n";
@@ -486,9 +491,9 @@ void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsu
     archivo << "    node [shape=rectangle];\n";
     archivo << "    rankdir=TB;\n";
 
-    // Generar árbol para cada usuario
+    // vamos a buscar el usuario en la matriz 
     for (int i = 0; i < cantidadUsuarios; i++) {
-        // Buscar el usuario en la matriz
+        
         NodoMatriz* usuarioNodo = nullptr;
         NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
         while (nodoDepartamento) {
@@ -509,12 +514,12 @@ void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsu
             nodoDepartamento = nodoDepartamento->derecha;
         }
 
-        // Si encontramos el usuario, generamos su subárbol
+        // si se encuentra el usuario se genera el subarbol 
         if (usuarioNodo && usuarioNodo->arbolAVL) {
-            // Crear nodo raíz con nombre de usuario
+           
             archivo << "    \"" << usuarios[i] << "\" [label=\"" << usuarios[i] << "\"];\n";
             
-            // Generar subárbol de activos
+           
             generarSubArbolGraphvizConRaiz(archivo, usuarios[i], usuarioNodo->arbolAVL);
         }
     }
@@ -522,35 +527,35 @@ void generarReporteGraphvizActivosDepartamento(string* usuarios, int cantidadUsu
     archivo << "}\n";
     archivo.close();
 
-    // Generar PNG
+    
     string comando = "dot -Tpng reporte_activos_departamento.dot -o reporte_activos_departamento.png";
     system(comando.c_str());
 
     cout << "Reporte Graphviz generado exitosamente en reporte_activos_departamento.png" << endl;
 }
 
+// algran dejo otra tarea el ing, hacerla en la noche 
 
-
+// funcion para pedirle el depa a consultar para el reporte 
 void reporteActivosDisponiblesDepartamento() {
     string departamento;
     cout << "Ingrese el departamento: ";
     cin.ignore();
     getline(cin, departamento);
 
-    // Vector para guardar usuarios
     string usuarios[100];
     int contadorUsuarios = 0;
 
     cout << "Usuarios en el departamento " << departamento << ":" << endl;
 
-    // Recorrer toda la matriz buscando usuarios del departamento específico
+    // aquí vamos a pasar por   toda la matriz buscando usuarios del departamento especfico
     NodoMatriz* nodoDepartamentoActual = matrizUsuarios.cabeza;
     while (nodoDepartamentoActual != nullptr) {
         NodoMatriz* nodoEmpresa = nodoDepartamentoActual->derecha;
         while (nodoEmpresa != nullptr) {
             NodoMatriz* usuario = nodoEmpresa->abajo;
             while (usuario != nullptr) {
-                // Verificar si el usuario pertenece al departamento buscado
+                // mirar si el usuario es del departamento 
                 if (usuario->departamento == departamento) {
                     cout << "- Usuario: " << usuario->nombreUsuario 
                          << " (Empresa: " << nodoEmpresa->nombreUsuario << ")" << endl;
@@ -580,7 +585,7 @@ void reporteActivosDisponiblesDepartamento() {
     }
 }
 
-
+// funcion para generar el reporte de activos en graphviz dependiendo la empresa
 void generarReporteGraphvizActivosEmpresa(string* usuarios, int cantidadUsuarios, const string& empresa) {
     ofstream archivo("reporte_activos_empresa.dot");
     
@@ -589,7 +594,7 @@ void generarReporteGraphvizActivosEmpresa(string* usuarios, int cantidadUsuarios
         return;
     }
 
-    // Escribir encabezado del reporte con el nombre de la empresa
+  
     archivo << "digraph ArbolActivos {\n";
     archivo << "    label=\"Reporte de empresa: " << empresa << "\";\n";
     archivo << "    labelloc=\"t\";\n";
@@ -597,9 +602,9 @@ void generarReporteGraphvizActivosEmpresa(string* usuarios, int cantidadUsuarios
     archivo << "    node [shape=rectangle];\n";
     archivo << "    rankdir=TB;\n";
 
-    // Generar árbol para cada usuario
+    
     for (int i = 0; i < cantidadUsuarios; i++) {
-        // Buscar el usuario en la matriz
+        // bscar el usuario en la matriz
         NodoMatriz* usuarioNodo = nullptr;
         NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
         while (nodoDepartamento) {
@@ -620,12 +625,12 @@ void generarReporteGraphvizActivosEmpresa(string* usuarios, int cantidadUsuarios
             nodoDepartamento = nodoDepartamento->derecha;
         }
 
-        // Si encontramos el usuario, generamos su subárbol
+        // si se encuentra el usuario se genera el subarbol
         if (usuarioNodo && usuarioNodo->arbolAVL) {
             // Crear nodo raíz con nombre de usuario
             archivo << "    \"" << usuarios[i] << "\" [label=\"" << usuarios[i] << "\"];\n";
             
-            // Generar subárbol de activos
+        
             generarSubArbolGraphvizConRaiz(archivo, usuarios[i], usuarioNodo->arbolAVL);
         }
     }
@@ -633,36 +638,37 @@ void generarReporteGraphvizActivosEmpresa(string* usuarios, int cantidadUsuarios
     archivo << "}\n";
     archivo.close();
 
-    // Generar PNG (corregir nombre de archivo de salida)
+    
     string comando = "dot -Tpng reporte_activos_empresa.dot -o reporte_activos_empresa.png";
     system(comando.c_str());
 
     cout << "Reporte Graphviz generado exitosamente en reporte_activos_empresa.png" << endl;
 }
 
+// algp como que esta mal en la funcion de arriba me lleva la verga 
 
-
+// funcion para pedirle la empresa a consultar para el reporte
 void reporteActivosDisponiblesEmpresa() {
     string empresa;
     cout << "Ingrese el nombre de la empresa: ";
     cin.ignore();
     getline(cin, empresa);
 
-    // Vector para guardar usuarios
+    
     string usuarios[100];
     int contadorUsuarios = 0;
 
     cout << "Usuarios en la empresa " << empresa << ":" << endl;
 
-    // Recorrer toda la matriz buscando usuarios de la empresa específica
+    //  pasamos por toda la matriz buscando usuarios de la empresa especifica
     NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
     while (nodoDepartamento != nullptr) {
         NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
         while (nodoEmpresa != nullptr) {
-            // Buscar usuarios en esta empresa
+            // buscar usuarios de la empresa
             NodoMatriz* usuario = nodoEmpresa->abajo;
             while (usuario != nullptr) {
-                // Verificar si es la empresa buscada usando el nuevo campo empresa
+                // validamos si el usuario es de la empresa
                 if (usuario->empresa == empresa) {
                     cout << "- Usuario: " << usuario->nombreUsuario 
                          << " (Departamento: " << usuario->departamento << ")" << endl;
@@ -691,7 +697,7 @@ void reporteActivosDisponiblesEmpresa() {
     }
 }
 
-
+// funcion para generar el reporte de activos en graphviz dependiendo el usuario
 void generarReporteGraphvizActivosUsuario(string nombreUsuario) {
     ofstream archivo("reporte_activos_usuario.dot");
     
@@ -700,7 +706,7 @@ void generarReporteGraphvizActivosUsuario(string nombreUsuario) {
         return;
     }
 
-    // Buscar el usuario en la matriz
+    // buscar el usuario en la matriz
     NodoMatriz* usuarioNodo = nullptr;
     NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
     while (nodoDepartamento) {
@@ -721,7 +727,7 @@ void generarReporteGraphvizActivosUsuario(string nombreUsuario) {
         nodoDepartamento = nodoDepartamento->derecha;
     }
 
-    // Escribir encabezado del reporte
+    
     archivo << "digraph ArbolActivos {\n";
     archivo << "    label=\"Reporte de Activos del Usuario: " << nombreUsuario << "\";\n";
     archivo << "    labelloc=\"t\";\n";
@@ -729,12 +735,12 @@ void generarReporteGraphvizActivosUsuario(string nombreUsuario) {
     archivo << "    node [shape=rectangle];\n";
     archivo << "    rankdir=TB;\n";
 
-    // Si encontramos el usuario, generamos su subárbol
+    // si se encuentra el usuario se genera el subarbol
     if (usuarioNodo && usuarioNodo->arbolAVL) {
-        // Crear nodo raíz con nombre de usuario
+        // nodo raiz con el nombre del usuario
         archivo << "    \"" << nombreUsuario << "\" [label=\"" << nombreUsuario << "\"];\n";
         
-        // Generar subárbol de activos
+      
         generarSubArbolGraphvizConRaiz(archivo, nombreUsuario, usuarioNodo->arbolAVL);
     } else {
         cout << "Usuario no encontrado." << endl;
@@ -744,21 +750,22 @@ void generarReporteGraphvizActivosUsuario(string nombreUsuario) {
     archivo << "}\n";
     archivo.close();
 
-    // Generar PNG
+   
     string comando = "dot -Tpng reporte_activos_usuario.dot -o reporte_activos_usuario.png";
     system(comando.c_str());
 
     cout << "Reporte Graphviz generado exitosamente en reporte_activos_usuario.png" << endl;
 }
 
+// funcion para pedirle el usuario a consultar para el reporte
 void reporteActivosDisponiblesUsuario() {
-    // Vector para guardar usuarios
+
     string usuarios[100];
     int contadorUsuarios = 0;
 
     cout << "Lista de Usuarios:" << endl;
 
-    // Recorrer toda la matriz y listar todos los usuarios
+    // pasamos por toda la matriz buscando usuarios
     NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
     while (nodoDepartamento != nullptr) {
         NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
@@ -801,6 +808,7 @@ void reporteActivosDisponiblesUsuario() {
         cout << "Selección invalida." << endl;
     }
 }
+
 // Estructura para el nodo de la lista circular de transacciones
 struct NodoTransaccion {
     string idTransaccion;
@@ -825,7 +833,7 @@ struct NodoTransaccion {
     }
 };
 
-// Clase para manejar la lista circular de transacciones
+// clase para la lista 2 circular de transacciones
 class ListaTransacciones {
 public:
     NodoTransaccion* cabeza;
@@ -845,11 +853,11 @@ public:
             return;
         }
 
-        // Buscar la posición correcta para insertar ordenadamente por idTransaccion
+        // buscar la posición correcta para insertar la transacción
         NodoTransaccion* actual = cabeza;
         do {
             if (nuevo->idTransaccion < actual->idTransaccion) {
-                // Insertar antes del actual
+                // insertar antes del nodo actual
                 nuevo->siguiente = actual;
                 nuevo->anterior = actual->anterior;
                 actual->anterior->siguiente = nuevo;
@@ -862,13 +870,14 @@ public:
             actual = actual->siguiente;
         } while (actual != cabeza);
 
-        // Si llegamos aquí, insertar al final
+        // si llega aquí, se inserta al final de la lista
         nuevo->siguiente = cabeza;
         nuevo->anterior = cabeza->anterior;
         cabeza->anterior->siguiente = nuevo;
         cabeza->anterior = nuevo;
     }
 
+// funcion para mostrar datos de transacciones
     void mostrarTransacciones() {
         if (!cabeza) {
             cout << "No hay transacciones registradas.\n";
@@ -891,19 +900,21 @@ public:
     }
 };
 
-// Variable global para manejar las transacciones
+// Variable global para manejar las transacciones , le pedi permiso al aux :v
 ListaTransacciones listaTransacciones;
 
-// Función para mostrar los activos de un árbol AVL en orden
+// funcion para mostrar los activos del avl en orden
 void mostrarActivosAVL(NodoAVL* nodo);
 
-// Declaración de la función para generar un ID único de activo
+// esta variable es para la declaración de la funcion para generar el id del activo
 string generarIDActivo();
 
-// Declaración de la función para generar un ID único de activo
+// esta varibale es para delcarion de la función para generar un ID unico de transaccion
 string generarIDActivo();
 
 // Modificar la función de rentarActivo
+
+// funcion para rentar un activo 
 void rentarActivo() {
     NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
     if (!usuarioActual) {
@@ -915,7 +926,7 @@ void rentarActivo() {
     cout << "-------------- Catalogo de Activos ----------------" << endl;
     cout << "---------------------------------------------------" << endl;
 
-    // Mostrar activos disponibles de todos los usuarios menos los del usuario actual
+    // mostrar activos disponibles de todos los usuarios menos los del usuario actual
     bool hayActivos = false;
     NodoMatriz* deptoActual = matrizUsuarios.cabeza;
     while (deptoActual != nullptr) {
@@ -923,7 +934,7 @@ void rentarActivo() {
         while (empresaActual != nullptr) {
             NodoMatriz* userActual = empresaActual->abajo;
             while (userActual != nullptr) {
-                // Evitar mostrar los activos del usuario logeado
+                // evitar mostrar los activos del usuario logeado
                 if (userActual->nombreUsuario != nombreUsuario && userActual->arbolAVL) {
                     mostrarActivosDisponiblesAVL(userActual->arbolAVL);
                     hayActivos = true;
@@ -948,9 +959,9 @@ void rentarActivo() {
     cout << "Ingrese el numero de dias para rentar: ";
     cin >> diasRenta;
 
-    // Buscar y validar el activo en los árboles AVL de otros usuarios
+    // buscar y validar el activo en los árboles AVL de otros usuarios
     NodoAVL* activoEncontrado = nullptr;
-    NodoMatriz* propietarioActivo = nullptr; // Guardar referencia al propietario del activo
+    NodoMatriz* propietarioActivo = nullptr; // con esta guardamosreferencia al propietario del activo
 
     deptoActual = matrizUsuarios.cabeza;
     while (deptoActual != nullptr) {
@@ -958,21 +969,21 @@ void rentarActivo() {
         while (empresaActual != nullptr) {
             NodoMatriz* userActual = empresaActual->abajo;
             while (userActual != nullptr) {
-                // Ignorar los activos del usuario logeado
+                // ignorar los activos del usuario logeado
                 if (userActual->nombreUsuario != nombreUsuario && userActual->arbolAVL) {
                     NodoAVL* actual = userActual->arbolAVL;
                     while (actual != nullptr) {
                         if (idActivoRentar == actual->idActivo) {
-                            // Verificar si el activo está disponible
+                            // verificar si el activo está disponible
                             if (!actual->disponible) {
                                 cout << "Error: El activo ya está rentado.\n";
                                 return;
                             }
 
                             activoEncontrado = actual;
-                            propietarioActivo = userActual; // Guardar el propietario del activo
+                            propietarioActivo = userActual; // guardar el propietario del activo
 
-                            // Validar el tiempo máximo de renta
+                            // validar el tiempo máximo de renta
                             if (diasRenta > activoEncontrado->tiempoMaximoRenta) {
                                 cout << "Error: El tiempo solicitado excede el tiempo maximo permitido para este activo.\n";
                                 return;
@@ -986,13 +997,13 @@ void rentarActivo() {
                         }
                     }
                 }
-                if (activoEncontrado) break; // Salir del bucle si el activo ya fue encontrado
+                if (activoEncontrado) break; 
                 userActual = userActual->abajo;
             }
-            if (activoEncontrado) break; // Salir del bucle si el activo ya fue encontrado
+            if (activoEncontrado) break; 
             empresaActual = empresaActual->derecha;
         }
-        if (activoEncontrado) break; // Salir del bucle si el activo ya fue encontrado
+        if (activoEncontrado) break; 
         deptoActual = deptoActual->derecha;
     }
 
@@ -1001,24 +1012,25 @@ void rentarActivo() {
         return;
     }
 
-    // Cambiar el estado de disponibilidad del activo a false (rentado)
+    // cambiar el estado de disponibilidad del activo a false (rentado)
     activoEncontrado->disponible = false;
 
-    string idTransaccion = generarIDActivo(); // Generar ID único para la transacción
+    string idTransaccion = generarIDActivo(); // generar ID único para la transacción
     listaTransacciones.insertarTransaccion(
         idTransaccion, idActivoRentar, activoEncontrado->nombreActivo, nombreUsuario,
         departamento, empresa, diasRenta
     );
 }
 
+// funcion para el reporte de actvios rentados por usuario 
 void generarReporteGraphvizActivosRentados() {
-    // Arreglo para guardar usuarios
+    
     string usuarios[100];
     int contadorUsuarios = 0;
 
     cout << "Lista de Usuarios:" << endl;
 
-    // Recorrer toda la matriz y listar todos los usuarios
+    // buscar usuarios en la matriz 
     NodoMatriz* nodoDepartamento = matrizUsuarios.cabeza;
     while (nodoDepartamento != nullptr) {
         NodoMatriz* nodoEmpresa = nodoDepartamento->derecha;
@@ -1051,7 +1063,7 @@ void generarReporteGraphvizActivosRentados() {
     if (seleccion > 0 && seleccion <= contadorUsuarios) {
         string usuarioSeleccionado = usuarios[seleccion-1];
         
-        // Función para reemplazar comillas por espacios
+        // función para reemplazar comillas por espacios
         auto reemplazarComillas = [](string& texto) {
             for (int i = 0; texto[i] != '\0'; i++) {
                 if (texto[i] == '"') {
@@ -1060,30 +1072,30 @@ void generarReporteGraphvizActivosRentados() {
             }
         };
 
-        // Generar archivo DOT para Graphviz
+
         ofstream archivo("reporte_activos_" + usuarioSeleccionado + ".dot");
         if (!archivo) {
             cout << "Error al crear el archivo de reporte." << endl;
             return;
         }
 
-        // Inicio del archivo DOT
+   
         archivo << "digraph ActivosRentados {\n";
         archivo << "    rankdir=LR;\n";
         archivo << "    node [shape=record, style=filled, color=lightblue];\n";
         archivo << "    label=\"Activos Rentados por " << usuarioSeleccionado << "\";\n\n";
 
-        // Variables para contar y rastrear activos
+        // variables para contar y rastrear activos
         int contadorActivos = 0;
         bool tieneActivos = false;
 
-        // Recorrer las transacciones
+        // recorrer las transacciones
         NodoTransaccion* actual = listaTransacciones.cabeza;
         do {
             if (actual->usuario == usuarioSeleccionado) {
                 tieneActivos = true;
                 
-                // Preparar strings para escape de comillas
+                // preparar strings para escape de comillas y formato de fecha
                 string activo = actual->activo;
                 string departamento = actual->departamento;
                 string empresa = actual->empresa;
@@ -1093,7 +1105,7 @@ void generarReporteGraphvizActivosRentados() {
                 reemplazarComillas(departamento);
                 reemplazarComillas(empresa);
 
-                // Convertir fecha a string
+                // cnvertir fecha a string pinche bufer
                 char fechaBuffer[26];
                 ctime_s(fechaBuffer, sizeof(fechaBuffer), &actual->fechaRenta);
 
@@ -1108,7 +1120,6 @@ void generarReporteGraphvizActivosRentados() {
             actual = actual->siguiente;
         } while (actual != listaTransacciones.cabeza);
 
-        // Cerrar el grafo
         archivo << "}\n";
         archivo.close();
 
@@ -1118,7 +1129,7 @@ void generarReporteGraphvizActivosRentados() {
             return;
         }
 
-        // Generar PNG usando Graphviz
+      
         string comando = "dot -Tpng reporte_activos_" + usuarioSeleccionado + ".dot -o reporte_activos_" + usuarioSeleccionado + ".png";
         int resultado = system(comando.c_str());
 
@@ -1133,9 +1144,10 @@ void generarReporteGraphvizActivosRentados() {
         cout << "Selección invalida." << endl;
     }
 }
-// Función para devolver un activo (cambiar a disponible)
+
+// funcion para devolver un activo (cambiar a disponible)
 void devolverActivo(string idActivo) {
-    // Buscar el activo en todos los árboles AVL de usuarios
+    // buscar el activo en todos los avl de los usuarios para cambiar el estado a disponible
     NodoMatriz* deptoActual = matrizUsuarios.cabeza;
     while (deptoActual != nullptr) {
         NodoMatriz* empresaActual = deptoActual->derecha;
@@ -1145,7 +1157,7 @@ void devolverActivo(string idActivo) {
                 NodoAVL* actual = userActual->arbolAVL;
                 while (actual != nullptr) {
                     if (idActivo == actual->idActivo) {
-                        // Encontrar y cambiar el estado a disponible
+                        // encontrar y cambiar el estado a disponible
                         actual->disponible = true;
                         cout << "Activo " << idActivo << " devuelto correctamente\n";
                         return;
@@ -1165,34 +1177,34 @@ void devolverActivo(string idActivo) {
     cout << "No se encontro el activo especificado.\n";
 }
 
-// Función para eliminar una transacción de la lista circular
+// funcion para eliminar una transacción de la lista circular
 void eliminarTransaccion(string idTransaccion) {
     if (!listaTransacciones.cabeza) return;
 
     NodoTransaccion* actual = listaTransacciones.cabeza;
     NodoTransaccion* anterior = nullptr;
 
-    // Recorrer la lista para encontrar la transacción
+    // recorremos s la lista para encontrar la transaccion
     do {
         if (actual->idTransaccion == idTransaccion) {
-            // Si es el único nodo
+            // si es el único nodo
             if (actual->siguiente == actual) {
                 listaTransacciones.cabeza = nullptr;
                 delete actual;
                 return;
             }
 
-            // Si es la cabeza
+            // si es la cabeza
             if (actual == listaTransacciones.cabeza) {
                 listaTransacciones.cabeza = actual->siguiente;
             }
 
-            // Ajustar los punteros para "saltar" el nodo a eliminar
+            // ajustar los punteros para "saltar" el nodo a eliminar
             if (anterior) {
                 anterior->siguiente = actual->siguiente;
             }
 
-            // Liberar memoria
+            // liberar memoria su no peta xd
             delete actual;
             return;
         }
@@ -1203,9 +1215,9 @@ void eliminarTransaccion(string idTransaccion) {
 }
 
 
-
+// funcion para mostrar los activos rentados por el usuario actual
 void activosRentados() {
-    // Verificar si hay transacciones para el usuario actual
+    // verificar si hay transacciones registradas
     bool tieneTransacciones = false;
     NodoTransaccion* actual = listaTransacciones.cabeza;
     
@@ -1214,16 +1226,15 @@ void activosRentados() {
         return;
     }
 
-    // Encabezado del listado de activos rentados
+   
     cout << "---------------------------------------------------" << endl;
     cout << "-------------- Activos Rentados -------------------" << endl;
     cout << "---------------------------------------------------" << endl;
 
-    // Arreglo para almacenar IDs de activos rentados
-    string activosRentadosUsuario[100];  // Ajusta el tamaño según tus necesidades
+    string activosRentadosUsuario[100];  // ajustas el tamaño si es necesario no creo que nos meta 200 usuarios o si ....
     int contadorActivos = 0;
 
-    // Mostrar solo las transacciones del usuario actual
+    
     do {
         if (actual->usuario == nombreUsuario) {
             tieneTransacciones = true;
@@ -1238,29 +1249,29 @@ void activosRentados() {
             cout << "Dias de renta: " << actual->diasRenta << endl;
             cout << "Fecha de renta: " << ctime(&actual->fechaRenta);
             
-            // Guardar el ID del activo para potential devolución
+            // guardar el ID del activo para lo de la  devolucion
             activosRentadosUsuario[contadorActivos++] = actual->idActivo;
         }
         actual = actual->siguiente;
     } while (actual != listaTransacciones.cabeza);
 
-    // Si no hay transacciones para este usuario
+    // si no hay transacciones para este usuario
     if (!tieneTransacciones) {
         cout << "No tiene activos rentados en este momento.\n";
         return;
     }
 
-    // Opción de devolución de activo
+    // opcion de devolucion de activo
     char opcion;
     cout << "\n¿Desea devolver un activo? (S/N): ";
     cin >> opcion;
 
-    if (opcion == 'S' || opcion == 's') {
+    if (opcion == 'S' || opcion == 's') { // si es S o s es que si quiere devolver si no pos no
         string idActivoDevolver;
         cout << "Ingrese el ID del activo a devolver: ";
         cin >> idActivoDevolver;
 
-        // Buscar la transacción del activo a devolver
+        // buscar la transacción del activo a devolver
         NodoTransaccion* transaccionADevolver = nullptr;
         actual = listaTransacciones.cabeza;
         do {
@@ -1272,13 +1283,13 @@ void activosRentados() {
         } while (actual != listaTransacciones.cabeza);
 
         if (transaccionADevolver) {
-            // Realizar la devolución
+           
             cout << "\n--- Resumen de Devolucion ---\n";
             cout << "ID Activo: " << transaccionADevolver->idActivo << endl;
             cout << "Activo rentado: " << transaccionADevolver->activo << endl;
             cout << "Dias rentados: " << transaccionADevolver->diasRenta << endl;
             
-            // Devolver el activo (cambiar a disponible)
+            // devolver el activo (cambiar a disponible)
             devolverActivo(transaccionADevolver->idActivo);
 
             // Marcar la transacción como devuelta (sin eliminarla)
@@ -1291,6 +1302,7 @@ void activosRentados() {
     }
 }
 
+//  funicion de la propietorio de un activo
 bool verificarPropiedadActivo(const string& idActivo, const string& nombreUsuario) {
     NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
     if (!usuarioActual || !usuarioActual->arbolAVL) {
@@ -1298,11 +1310,11 @@ bool verificarPropiedadActivo(const string& idActivo, const string& nombreUsuari
     }
 
     NodoAVL* activo = buscarActivoEnAVL(usuarioActual->arbolAVL, idActivo);
-    return activo != nullptr; // Retorna true si el activo fue encontrado
+    return activo != nullptr; // retorna true si el activo fue encontrado
 }
 
 
-
+// funcion para mostrar los activos rentados por otros usuarios pero que son del usuario actual
 void mostrarMisActivosRentados() {
     if (!listaTransacciones.cabeza) {
         cout << "No hay transacciones registradas.\n";
@@ -1317,7 +1329,7 @@ void mostrarMisActivosRentados() {
     NodoTransaccion* actual = listaTransacciones.cabeza;
 
     do {
-        // Filtrar: El activo debe ser del usuario actual, pero rentado por otro usuario
+        
         if (actual->usuario != nombreUsuario && verificarPropiedadActivo(actual->idActivo, nombreUsuario)) {
             hayActivosRentados = true;
             cout << "\n-------- Activo Rentado --------\n";
@@ -1338,7 +1350,7 @@ void mostrarMisActivosRentados() {
     }
 }
 
-
+// funcion para mostrar los activos rentados por el usuario actual
 void mostrarActivosRentados() {
     if (!listaTransacciones.cabeza) {
         cout << "No hay activos rentados.\n";
@@ -1351,7 +1363,7 @@ void mostrarActivosRentados() {
 
     NodoTransaccion* actual = listaTransacciones.cabeza;
     do {
-        // Verificar si el usuario actual es el mismo que el de la transacción
+        
         if (actual->usuario == nombreUsuario) {
             cout << "\n-------- Transaccion --------\n";
             cout << "ID Transaccion: " << actual->idTransaccion << endl;
@@ -1367,7 +1379,7 @@ void mostrarActivosRentados() {
     } while (actual != listaTransacciones.cabeza);
 }
 
-
+// funcion para reporte de transacciones osea la lista 2 circular en el estado actual luego colocar lo de asc o desc
 void generarReporteGraphvizListaCircularDoble(ListaTransacciones& lista) {
     if (!lista.cabeza) {
         cout << "No hay transacciones para generar el reporte Graphviz.\n";
@@ -1380,16 +1392,16 @@ void generarReporteGraphvizListaCircularDoble(ListaTransacciones& lista) {
         return;
     }
 
-    // Inicio del archivo DOT
+   
     archivo << "digraph ListaTransacciones {\n";
-    archivo << "    rankdir=LR;\n";  // Dirección de izquierda a derecha
+    archivo << "    rankdir=LR;\n";  
     archivo << "    node [shape=record, style=filled, fillcolor=lightblue];\n";
 
     NodoTransaccion* actual = lista.cabeza;
     int contador = 0;
 
     do {
-        // Escapar caracteres especiales en las cadenas
+        
         auto escaparCadena = [](const string& str) {
             string resultado;
             for (char c : str) {
@@ -1402,7 +1414,7 @@ void generarReporteGraphvizListaCircularDoble(ListaTransacciones& lista) {
             return resultado;
         };
 
-        // Crear nodo con toda la información de la transacción
+       
         archivo << "    nodo" << contador << " [label=\"{ID Trans: " 
                 << escaparCadena(actual->idTransaccion) << "\\n"
                 << "ID Activo: " << escaparCadena(actual->idActivo) << "\\n"
@@ -1413,7 +1425,7 @@ void generarReporteGraphvizListaCircularDoble(ListaTransacciones& lista) {
                 << "Días Renta: " << actual->diasRenta << "\\n"
                 << "Fecha Renta: " << ctime(&actual->fechaRenta) << "}\"];\n";
 
-        // Crear enlaces
+        // creamos cada enlace entre nodos
         if (contador > 0) {
             archivo << "    nodo" << (contador-1) << " -> nodo" << contador << " [color=blue];\n";
             archivo << "    nodo" << contador << " -> nodo" << (contador-1) << " [color=red, style=dashed];\n";
@@ -1423,26 +1435,27 @@ void generarReporteGraphvizListaCircularDoble(ListaTransacciones& lista) {
         contador++;
     } while (actual != lista.cabeza);
 
-    // Enlazar el último con el primero para mostrar la circularidad
+    // enlazar el último con el primero para mostrar la circularidad
     archivo << "    nodo" << (contador-1) << " -> nodo0 [color=green, constraint=false];\n";
     archivo << "    nodo0 -> nodo" << (contador-1) << " [color=green, style=dashed, constraint=false];\n";
 
     archivo << "}\n";
     archivo.close();
 
-    // Generar PNG automáticamente
+    
     system("dot -Tpng reporte_transacciones.dot -o reporte_transacciones.png");
     cout << "Reporte Graphviz generado: reporte_transacciones.png\n";
 }
 
+// funcione para ordenar la lista de trsansaciones si asc o desc
 void OrdenarTransacciones(ListaTransacciones& lista) {
-    // Verificar si la lista está vacía o tiene un solo elemento
+    // verificar si la lista está vacia o tiene un solo elemento
     if (!lista.cabeza || lista.cabeza->siguiente == lista.cabeza) {
         cout << "La lista está vacia o tiene un solo elemento. No se puede ordenar.\n";
         return;
     }
 
-    // Menú para elegir tipo de ordenamiento
+   
     int opcion;
     cout << "\n--- Ordenar Transacciones ---\n";
     cout << "1. Ordenar Ascendentemente (A-Z, 1-9)\n";
@@ -1450,16 +1463,16 @@ void OrdenarTransacciones(ListaTransacciones& lista) {
     cout << "Ingrese su opcion: ";
     cin >> opcion;
 
-    // Validar entrada
+    // validamos la entrada del usuario
     if (opcion != 1 && opcion != 2) {
         cout << "Opcion invalida. Se cancelo el ordenamiento.\n";
         return;
     }
 
-    // Definir si es ascendente o descendente
+    // definir si es ascendente o descendente
     bool ascendente = (opcion == 1);
 
-    // Función de comparación personalizada para IDs alfanuméricos
+    // función de comparacion personalizada para IDs alfanuméricos
     auto compararIDs = [](const string& a, const string& b) -> bool {
         // Comparación alfanumérica
         int i = 0, j = 0;
@@ -1489,7 +1502,7 @@ void OrdenarTransacciones(ListaTransacciones& lista) {
         return a.length() < b.length();
     };
 
-    // Contar número de nodos
+    // contar numero de nodos
     int numNodos = 0;
     NodoTransaccion* actual = lista.cabeza;
     do {
@@ -1497,7 +1510,7 @@ void OrdenarTransacciones(ListaTransacciones& lista) {
         actual = actual->siguiente;
     } while (actual != lista.cabeza);
 
-    // Algoritmo de ordenamiento burbuja adaptado a lista circular doblemente enlazada
+    // Algoritmo de ordenamiento burbujita para manejar a lista circular 2 enlazada
     for (int i = 0; i < numNodos - 1; i++) {
         bool intercambiado = false;
         actual = lista.cabeza;
@@ -1505,13 +1518,13 @@ void OrdenarTransacciones(ListaTransacciones& lista) {
         for (int j = 0; j < numNodos - i - 1; j++) {
             NodoTransaccion* siguiente = actual->siguiente;
             
-            // Comparar los IDs de transacción
+            // comparar los ids de transaccion
             bool necesitaIntercambio = ascendente ? 
                 compararIDs(siguiente->idTransaccion, actual->idTransaccion) : 
                 compararIDs(actual->idTransaccion, siguiente->idTransaccion);
             
             if (necesitaIntercambio) {
-                // Intercambiar información de los nodos (no los punteros)
+                // intercambiar información de los nodos (no los punteros)
                 swap(actual->idTransaccion, siguiente->idTransaccion);
                 swap(actual->idActivo, siguiente->idActivo);
                 swap(actual->activo, siguiente->activo);
@@ -1527,16 +1540,17 @@ void OrdenarTransacciones(ListaTransacciones& lista) {
             actual = siguiente;
         }
         
-        // Si no hubo intercambios, la lista ya está ordenada
+        // si no hubo intercambios, la lista ya está ordenada
         if (!intercambiado) break;
     }
 
-    // Mensaje de confirmación
+    
     cout << "Transacciones ordenadas " 
          << (ascendente ? "ascendentemente" : "descendentemente") 
          << " por ID de Transacción.\n";
 }
-// Función para mostrar los activos de un árbol AVL en orden
+
+// funcion para mostrar los activos del avl en orden
 void mostrarActivosAVL(NodoAVL* nodo) {
     if (!nodo)
         return;
@@ -1547,7 +1561,7 @@ void mostrarActivosAVL(NodoAVL* nodo) {
     mostrarActivosAVL(nodo->derecha);
 }
 
-// Función para eliminar un activo del usuario
+// funcion para eliminar un activo del usuario
 void eliminarActivo() {
     NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
 
@@ -1563,12 +1577,12 @@ void eliminarActivo() {
     string idActivoEliminar;
     cin >> idActivoEliminar;
 
-    // Guardar la información del activo antes de eliminarlo
+    // guardar la información del activo antes de eliminarlo antes me lo mochaba pero ya no jajajaj
     string nombreActivoEliminado;
     string descripcionActivoEliminado;
     int tiempoMaximoRentaActivoEliminado;
     
-    // Buscar el activo y guardar su información
+    // buscar el activo y guardar su información
     NodoAVL* actual = usuarioActual->arbolAVL;
     bool encontrado = false;
     
@@ -1585,7 +1599,6 @@ void eliminarActivo() {
         }
     }
 
-    // Intentar eliminar el nodo del árbol AVL
     NodoAVL* arbolModificado = eliminarNodoAVL(usuarioActual->arbolAVL, idActivoEliminar);
 
     if (arbolModificado != usuarioActual->arbolAVL || encontrado) {
@@ -1605,14 +1618,14 @@ void eliminarActivo() {
 }
 
 
-// Función para generar un carácter aleatorio
+// funcion para generar un carácter aleatorio
 char generarCaracterAleatorio() {
     //generan números pseudoaleatorios
     static unsigned long seed1 = 1;
     static unsigned long seed2 = 0;
     const std::string caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     
-    // Combinar dos semillas
+    // combinar dos semillas
     seed1 = (seed1 * 24271 + 3522483246);
     seed2 = (seed2 * 2143618259 + 12345);
     
@@ -1620,7 +1633,7 @@ char generarCaracterAleatorio() {
     return caracteres[combinedSeed % caracteres.length()];
 }
 
-// Función para generar un ID único de 15 caracteres alfanuméricos
+// funncion para generar un ID uunico de 15 caracteres alfanuméricos
 string generarIDActivo() {
     string id;
     
@@ -1630,18 +1643,18 @@ string generarIDActivo() {
     return id;
 }
 
-// Función para iniciar sesion
+// funcion para iniciar sesion
 bool iniciarSesion() {
     cout << "Ingresar Nombre de Usuario: ";
     cin >> nombreUsuario;
     cout << "Ingresar Contrasena: ";
     cin >> contrasena;
 
-    // Verificar si es un usuario administrador
+    // verificar si es un usuario admin
     if (nombreUsuario == "admin" && contrasena == "admin") {
         departamento = "N/A";
         empresa = "N/A";
-        return true; // Inicia sesion como administrador
+        return true; // inicia sesion como admin
     } else {
         cout << "Ingresar Departamento: ";
         cin >> departamento;
@@ -1652,15 +1665,15 @@ bool iniciarSesion() {
 
         if (nodoUsuario != nullptr && nodoUsuario->contrasena == contrasena) {
             cout << "Inicio de sesion exitoso. Bienvenido, " << nodoUsuario->nombreUsuario << "!\n";
-            return false; // Inicia sesion como usuario normal
+            return false; // inicia sesion como usuario normal
         } else {
             cout << "Error: Usuario o contrasena incorrectos.\n";
-            return false; // No permite iniciar sesion
+            return false; 
         }
     }
 }
 
-// Función para registrar usuarios
+// funcion para registrar usuarios
 void registrarUsuario() {
     string usuario, pass, depto, emp;
     cout << "---------------------------------------------------" << endl;
@@ -1682,7 +1695,7 @@ void registrarUsuario() {
     matrizUsuarios.insertarUsuario(depto, emp, usuario, pass);
 }
 
-// Función para agregar un activo
+// funcion para agregar un activo
 void agregarActivo() {
     string nombreActivo, descripcionActivo, idActivo;
     int tiempoMaximoRenta;
@@ -1713,6 +1726,7 @@ void agregarActivo() {
     cout << "Activo agregado exitosamente.\n";
 }
 
+// funcion para modificar un activo
 void modificarActivo() {
     NodoMatriz* usuarioActual = matrizUsuarios.buscarUsuario(departamento, empresa, nombreUsuario);
 
@@ -1721,11 +1735,11 @@ void modificarActivo() {
         return;
     }
 
-    // Mostrar la lista de activos
+    // mostrar la lista de activos
     cout << "Lista de activos disponibles:\n";
     mostrarActivosAVL(usuarioActual->arbolAVL);
 
-    // Pedir al usuario el ID del activo a modificar
+    // pedir al usuario el ID del activo a modificar
     cout << "Ingrese el ID del activo que desea modificar: ";
     string idActivoModificar;
     cin >> idActivoModificar;
@@ -1744,7 +1758,7 @@ void modificarActivo() {
         }
     }
 
-    // Validar si el activo fue encontrado
+    // validar si el activo fue encontrado
     if (activoEncontrado) {
         cout << "\nActivo seleccionado:\n";
         cout << ">> ID: " << activoEncontrado->idActivo << "\n";
@@ -1752,13 +1766,13 @@ void modificarActivo() {
         cout << ">> Descripcion actual: " << activoEncontrado->descripcion << "\n";
         cout << ">> Tiempo Maximo de Renta: " << activoEncontrado->tiempoMaximoRenta << "\n";
 
-        // Pedir la nueva descripción
+        // pedir la nueva descripción
         cout << "Ingrese la nueva descripcion para este activo: ";
-        cin.ignore(); // Limpiar el buffer
+        cin.ignore();
         string nuevaDescripcion;
         getline(cin, nuevaDescripcion);
 
-        // Actualizar la descripción del activo
+        // actualizar la descripcion del activo
         activoEncontrado->descripcion = nuevaDescripcion;
 
         // Confirmar la modificación
@@ -1772,6 +1786,7 @@ void modificarActivo() {
     }
 }
 
+// menu de usuario ya ingresado 
 void menuUsuario() {
     int opcion;
     const string RESET = "\033[0m";
@@ -1782,7 +1797,7 @@ void menuUsuario() {
     const string CYAN = "\033[1;36m";
 
     do {
-        // Limpia la pantalla
+        // limpia la pantall
         #ifdef _WIN32
             system("cls");
         #else
@@ -1795,25 +1810,25 @@ void menuUsuario() {
         cout << BLUE << "|                  -= Usuario =-                 |" << RESET << endl;
         cout << BLUE << "+================================================+" << RESET << endl << endl;
 
-        // Sección de Gestión de Activos
+        
         cout << CYAN << "  [Gestion de Activos]" << RESET << endl;
         cout << YELLOW << "  [1] " << GREEN << "Agregar Nuevo Activo" << RESET << endl;
         cout << YELLOW << "  [2] " << GREEN << "Eliminar Activo" << RESET << endl;
         cout << YELLOW << "  [3] " << GREEN << "Modificar Activo" << RESET << endl << endl;
 
-        // Sección de Rentas
+       
         cout << CYAN << "  [Sistema de Rentas]" << RESET << endl;
         cout << YELLOW << "  [4] " << GREEN << "Rentar Nuevo Activo" << RESET << endl;
         cout << YELLOW << "  [5] " << GREEN << "Ver Todos los Activos en Renta" << RESET << endl;
         cout << YELLOW << "  [6] " << GREEN << "Mis Activos Rentados" << RESET << endl << endl;
 
-        // Sección de Sesión
+      
         cout << CYAN << "  [Sesion]" << RESET << endl;
         cout << YELLOW << "  [7] " << RED << "Cerrar Sesion" << RESET << endl << endl;
 
         cout << BLUE << "  -> Seleccione una opcion: " << RESET;
         
-        // Validación de entrada
+        // validacion de entrada
         if (!(cin >> opcion)) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -1874,6 +1889,8 @@ void menuUsuario() {
         system("pause");
     } while (true);
 }
+
+// memu de administrador
 void menuAdministrador() {
     int opcion;
     const string RESET = "\033[0m";
@@ -1884,24 +1901,22 @@ void menuAdministrador() {
     const string CYAN = "\033[1;36m";
 
     do {
-        // Limpia la pantalla
+        // limpia la pantalla carrea duro esto jajaja debi usarlo antes jajaja
         #ifdef _WIN32
             system("cls");
         #else
             system("clear");
         #endif
 
-        // Encabezado
         cout << BLUE << "+================================================+" << RESET << endl;
         cout << BLUE << "|                PANEL DE CONTROL                 |" << RESET << endl;
         cout << BLUE << "|              -= Administrador =-                |" << RESET << endl;
         cout << BLUE << "+================================================+" << RESET << endl << endl;
 
-        // Sección de Gestión de Usuarios
+       
         cout << CYAN << "  [Gestion de Usuarios]" << RESET << endl;
         cout << YELLOW << "  [1] " << GREEN << "Registrar Nuevo Usuario" << RESET << endl << endl;
 
-        // Sección de Reportes
         cout << CYAN << "  [Reportes y Visualizacion]" << RESET << endl;
         cout << YELLOW << "  [2] " << GREEN << "Visualizar Matriz Dispersa" << RESET << endl;
         cout << YELLOW << "  [3] " << GREEN << "Reporte de Activos por Departamento" << RESET << endl;
@@ -1910,14 +1925,14 @@ void menuAdministrador() {
         cout << YELLOW << "  [6] " << GREEN << "Reporte de Activos por un Usuario" << RESET << endl;
         cout << YELLOW << "  [7] " << GREEN << "Activos en Rentados por un Usuario" << RESET << endl << endl;
 
-        // Sección de Herramientas
+        
         cout << CYAN << "  [Herramientas]" << RESET << endl;
         cout << YELLOW << "  [8] " << GREEN << "Ordenar Registro de Transacciones" << RESET << endl;
         cout << YELLOW << "  [9] " << RED << "Regresar al Menu Principal O_O" << RESET << endl << endl;
 
         cout << BLUE << "  -> Ingrese su opcion: " << RESET;
         
-        // Validación de entrada
+        // validación de entrada que si ponemos un string no se caiga pedi usar limits :v 
         if (!(cin >> opcion)) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -1986,6 +2001,8 @@ void menuAdministrador() {
         system("pause");
     } while (true);
 }
+
+// funcion para obtener una opcion valida lo que decia antes de usar numeric limits
 int obtenerOpcionValida() {
     int opcion;
     while (true) {
@@ -2000,17 +2017,20 @@ int obtenerOpcionValida() {
     }
 }
 
+// decorar cuando ya tenga todo listo
+
+// menu principal
 int main() {
     int opcion;
     do {
-        // Códigos de color
+        
         const string RESET = "\033[0m";
         const string BLUE = "\033[1;34m";
         const string GREEN = "\033[1;32m";
         const string RED = "\033[1;31m";
         const string YELLOW = "\033[1;33m";
 
-        // Arte ASCII mejorado
+        
         const string HEADER = 
             "+------------------------------------------------+\n"
             "|               Sistema de Activos                 |\n"
@@ -2019,7 +2039,7 @@ int main() {
         const string WELCOME_SYMBOL = "  /\\_/\\  ";
         const string LOCK_SYMBOL = " [>=<] ";
 
-        // Limpia la pantalla (funciona en Windows y Unix)
+      
         #ifdef _WIN32
             system("cls");
         #else
@@ -2066,3 +2086,5 @@ int main() {
 
     return 0;
 }
+
+// los colores y validaciones de como hacer un menu me lo jale de un video ajajajaj por si se pregunta porque muy colorido XDDD
