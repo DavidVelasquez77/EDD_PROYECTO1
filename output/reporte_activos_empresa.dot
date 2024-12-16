@@ -1,19 +1,16 @@
 digraph ArbolActivos {
-    label="Reporte de empresa: claro";
+    label="Reporte de empresa: tigo";
     labelloc="t";
     fontsize=20;
     node [shape=rectangle];
     rankdir=TB;
-    "diego" [label="diego"];
-    "diego_qR4PK321Adyj2ts" [label="ID: qR4PK321Adyj2ts\nNombre: activo1\nDesc: ssss\nTiempo Max: 33", color="green", style=filled, fillcolor="green"];
-    "diego" -> "diego_qR4PK321Adyj2ts";
-    "xavi" [label="xavi"];
-    "xavi_9yLcbkNep2ro1y3" [label="ID: 9yLcbkNep2ro1y3\nNombre: activo2\nDesc: kkk\nTiempo Max: 23", color="green", style=filled, fillcolor="green"];
-    "xavi" -> "xavi_9yLcbkNep2ro1y3";
-    "xavi" [label="xavi"];
-    "xavi_9yLcbkNep2ro1y3" [label="ID: 9yLcbkNep2ro1y3\nNombre: activo2\nDesc: kkk\nTiempo Max: 23", color="green", style=filled, fillcolor="green"];
-    "xavi" -> "xavi_9yLcbkNep2ro1y3";
-    "xavi" [label="xavi"];
-    "xavi_9yLcbkNep2ro1y3" [label="ID: 9yLcbkNep2ro1y3\nNombre: activo2\nDesc: kkk\nTiempo Max: 23", color="green", style=filled, fillcolor="green"];
-    "xavi" -> "xavi_9yLcbkNep2ro1y3";
+    "juan" [label="juan"];
+    "juan_f4V2P4JQnMdeZwZ" [label="ID: f4V2P4JQnMdeZwZ\nNombre: activo4\nDesc: descripcion4\nTiempo Max: 88", color="red", style=filled, fillcolor="red"];
+    "juan" -> "juan_f4V2P4JQnMdeZwZ";
+    "juan" [label="juan"];
+    "juan_f4V2P4JQnMdeZwZ" [label="ID: f4V2P4JQnMdeZwZ\nNombre: activo4\nDesc: descripcion4\nTiempo Max: 88", color="red", style=filled, fillcolor="red"];
+    "juan" -> "juan_f4V2P4JQnMdeZwZ";
+    "juan" [label="juan"];
+    "juan_f4V2P4JQnMdeZwZ" [label="ID: f4V2P4JQnMdeZwZ\nNombre: activo4\nDesc: descripcion4\nTiempo Max: 88", color="red", style=filled, fillcolor="red"];
+    "juan" -> "juan_f4V2P4JQnMdeZwZ";
 }

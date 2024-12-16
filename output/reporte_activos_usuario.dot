@@ -1,12 +1,18 @@
 digraph ArbolActivos {
-    label="Reporte de Activos del Usuario: xavi";
+    label="Reporte de Activos del Usuario: diego";
     labelloc="t";
     fontsize=20;
     node [shape=rectangle];
     rankdir=TB;
-    "xavi" [label="xavi"];
-    "xavi_aNabononClgXQZU" [label="ID: aNabononClgXQZU\nNombre: activo5\nDesc: ssss\nTiempo Max: 22", color="green", style=filled, fillcolor="green"];
-    "xavi" -> "xavi_aNabononClgXQZU";
-    "xavi_3Q14rMl0rIJ474V" [label="ID: 3Q14rMl0rIJ474V\nNombre: activo6\nDesc: kkk\nTiempo Max: 33", color="green", style=filled, fillcolor="green"];
-    "xavi_aNabononClgXQZU" -> "xavi_3Q14rMl0rIJ474V";
+    "diego" [label="diego"];
+    "diego_kF6T05GBafkD8RM" [label="ID: kF6T05GBafkD8RM\nNombre: activo3\nDesc: descripcion3\nTiempo Max: 55", color="green", style=filled, fillcolor="green"];
+    "diego" -> "diego_kF6T05GBafkD8RM";
+    "diego_SvylmXAfyFmxa3k" [label="ID: SvylmXAfyFmxa3k\nNombre: laptop\nDesc: ssss\nTiempo Max: 44", color="green", style=filled, fillcolor="green"];
+    "diego_kF6T05GBafkD8RM" -> "diego_SvylmXAfyFmxa3k";
+    "diego_jYt8FYBER0JYD6p" [label="ID: jYt8FYBER0JYD6p\nNombre: cel\nDesc: iiii\nTiempo Max: 88", color="green", style=filled, fillcolor="green"];
+    "diego_SvylmXAfyFmxa3k" -> "diego_jYt8FYBER0JYD6p";
+    "diego_qR4PK321Adyj2ts" [label="ID: qR4PK321Adyj2ts\nNombre: activo1\nDesc: descripcion nueva1\nTiempo Max: 34", color="red", style=filled, fillcolor="red"];
+    "diego_kF6T05GBafkD8RM" -> "diego_qR4PK321Adyj2ts";
+    "diego_o1OLCxYxAt0dm7g" [label="ID: o1OLCxYxAt0dm7g\nNombre: refri\nDesc: jjuu\nTiempo Max: 77", color="green", style=filled, fillcolor="green"];
+    "diego_qR4PK321Adyj2ts" -> "diego_o1OLCxYxAt0dm7g";
 }

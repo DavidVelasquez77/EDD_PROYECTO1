@@ -8,12 +8,6 @@ digraph MatrizDispersa {
   "claro" [fillcolor=lightblue, group=3, pos="3,0!"];
   "guatemala" -> "claro";
   "claro" [fillcolor=lightgreen, group=1, pos="0,-1!"];
-  "claro" -> "claro";
-  "solola" [fillcolor=lightblue, group=4, pos="4,0!"];
-  "claro" -> "solola";
-  "tigo" [fillcolor=lightblue, group=5, pos="5,0!"];
-  "solola" -> "tigo";
-  "tigo" [fillcolor=lightgreen, group=1, pos="0,-1!"];
-  "tigo" -> "tigo";
-  { rank=same; "ADMIN" "guatemala" "claro" "solola" "tigo" }
+  "ADMIN" -> "claro";
+  { rank=same; "ADMIN" "guatemala" "claro" }
 }

@@ -273,7 +273,7 @@ public:
         return nullptr;
     }
 };
-
+// -----------------------------------------------------------------------------------------------------------------
 // nodo para un nuevo activo en el arbol avl
 NodoAVL* crearNodoAVL(string id, string nombre, string descripcion, int tiempoMaximo) {
     NodoAVL* nuevoNodo = new NodoAVL();
@@ -791,7 +791,7 @@ void reporteActivosDisponiblesUsuario() {
     }
 
     int seleccion;
-    cout << "Seleccione el número de usuario para generar el reporte: ";
+    cout << "Seleccione el numero de usuario para generar el reporte: ";
     cin >> seleccion;
 
     if (seleccion > 0 && seleccion <= contadorUsuarios) {
@@ -1056,7 +1056,7 @@ void generarReporteGraphvizActivosRentados() {
     }
 
     int seleccion;
-    cout << "Seleccione el número de usuario para generar el reporte: ";
+    cout << "Seleccione el numero de usuario para generar el reporte: ";
     cin >> seleccion;
 
     if (seleccion > 0 && seleccion <= contadorUsuarios) {
@@ -1546,7 +1546,7 @@ void OrdenarTransacciones(ListaTransacciones& lista) {
     
     cout << "Transacciones ordenadas " 
          << (ascendente ? "ascendentemente" : "descendentemente") 
-         << " por ID de Transacción.\n";
+         << " por ID de Transaccion.\n";
 }
 
 // funcion para mostrar los activos del avl en orden
