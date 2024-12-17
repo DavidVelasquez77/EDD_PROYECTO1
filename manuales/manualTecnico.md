@@ -125,14 +125,7 @@ La clase `MatrizDispersa` gestiona la construcción y operación de la matriz di
   - Nombre de la empresa.
   - Nombre del usuario.
 
-#### **`obtenerEncabezadosHorizontales`**
-- Imprime los nombres de los departamentos registrados como encabezados horizontales.
 
-#### **`obtenerGrupoDepartamento`**
-- Calcula la posición de un departamento dentro de la matriz para fines de generación de visualización.
-
-#### **`obtenerFilaEmpresa`**
-- Calcula la posición de una empresa dentro de la matriz para fines de generación de visualización.
 
 #### **`generarReporteGraphviz`**
 - Genera un archivo `.dot` para representar gráficamente la matriz dispersa utilizando Graphviz:

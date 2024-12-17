@@ -121,9 +121,9 @@ public:
         archivo << "  node [shape=box, style=filled, fontname=Arial];\n";
         archivo << "  splines=ortho;\n";
         archivo << "  rankdir=TB;\n";
-        archivo << "  edge [dir=both];\n";  // Hacer todas las aristas bidireccionales por defecto
+        archivo << "  edge [dir=both];\n";  
     
-        // Nodo principal "ADMIN"
+       
         archivo << "  \"ADMIN\" [fillcolor=blue, group=1, pos=\"0,0!\"];\n";
     
         // Generar encabezados de departamentos
@@ -135,7 +135,7 @@ public:
                     << "\" [fillcolor=lightyellow, group=" << columnaDepartamento
                     << ", pos=\"" << columnaDepartamento << ",0!\"];\n";
     
-            // Conectar departamentos con flechas bidireccionales
+            
             if (anteriorDepartamento) {
                 archivo << "  \"" << anteriorDepartamento->nombreUsuario
                         << "\" -> \"" << actualDepartamento->nombreUsuario << "\" [dir=both];\n";
@@ -158,7 +158,7 @@ public:
                 archivo << "  \"" << actualEmpresa->empresa
                         << "\" [fillcolor=orange, group=1, pos=\"0," << -filaEmpresa << "!\"];\n";
     
-                // Conectar empresas con flechas bidireccionales
+               
                 if (anteriorEmpresa) {
                     archivo << "  \"" << anteriorEmpresa->empresa
                             << "\" -> \"" << actualEmpresa->empresa << "\" [dir=both];\n";
