@@ -132,7 +132,7 @@ public:
         int columnaDepartamento = 2;
         while (actualDepartamento) {
             archivo << "  \"" << actualDepartamento->nombreUsuario
-                    << "\" [fillcolor=lightyellow, group=" << columnaDepartamento
+                    << "\" [fillcolor=orange, group=" << columnaDepartamento
                     << ", pos=\"" << columnaDepartamento << ",0!\"];\n";
     
             
@@ -181,7 +181,7 @@ public:
                 NodoMatriz* actualUsuario = actualEmpresa->abajo;
                 while (actualUsuario) {
                     archivo << "  \"" << actualUsuario->nombreUsuario
-                            << "\" [fillcolor=green, group=" << columnaDepartamento
+                            << "\" [fillcolor=orange, group=" << columnaDepartamento
                             << ", pos=\"" << columnaDepartamento << "," << -filaEmpresa << "!\"];\n";
     
                     // Conexión bidireccional con su empresa

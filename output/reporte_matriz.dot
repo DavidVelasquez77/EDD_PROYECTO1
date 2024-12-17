@@ -1,0 +1,24 @@
+digraph MatrizDispersa {
+  node [shape=box, style=filled, fontname=Arial];
+  splines=ortho;
+  rankdir=TB;
+  edge [dir=both];
+  "ADMIN" [fillcolor=blue, group=1, pos="0,0!"];
+  "guatemala" [fillcolor=orange, group=2, pos="2,0!"];
+  "ADMIN" -> "guatemala" [dir=both];
+  "claro" [fillcolor=orange, group=3, pos="3,0!"];
+  "guatemala" -> "claro" [dir=both];
+  "diego" [fillcolor=orange, group=4, pos="4,0!"];
+  "claro" -> "diego" [dir=both];
+  "solola" [fillcolor=orange, group=5, pos="5,0!"];
+  "diego" -> "solola" [dir=both];
+  "tigo" [fillcolor=orange, group=6, pos="6,0!"];
+  "solola" -> "tigo" [dir=both];
+  "juan" [fillcolor=orange, group=7, pos="7,0!"];
+  "tigo" -> "juan" [dir=both];
+  "claro" [fillcolor=orange, group=1, pos="0,-1!"];
+  "ADMIN" -> "claro" [dir=both];
+  "tigo" [fillcolor=orange, group=1, pos="0,-2!"];
+  "claro" -> "tigo" [dir=both];
+  { rank=same; "ADMIN" "guatemala" "claro" "diego" "solola" "tigo" "juan" }
+}
