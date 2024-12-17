@@ -47,36 +47,51 @@ struct NodoMatriz {
 };
 
 // clase de matriz dispersita 
+
 class MatrizDispersa {
 public:
     NodoMatriz* cabeza;
 
-public:
     MatrizDispersa() : cabeza(nullptr) {}
 
-// funcion para insertar usuario
-void insertarUsuario(string departamento, string empresa, string usuario, string contrasena) {
-    NodoMatriz* nodoDepartamento = obtenerOInsertarEncabezado(departamento, true);
-    NodoMatriz* nodoEmpresa = obtenerOInsertarEncabezado(empresa, false, nodoDepartamento);
+    void insertarUsuario(string departamento, string empresa, string usuario, string contrasena) {
+        NodoMatriz* nodoDepartamento = obtenerOInsertarEncabezado(departamento, true);
+        NodoMatriz* nodoEmpresa = obtenerOInsertarEncabezado(empresa, false, nodoDepartamento);
 
-    // Verificar si el usuario ya existe
-    NodoMatriz* actual = nodoEmpresa->abajo;
-    while (actual != nullptr) {
-        if (actual->nombreUsuario == usuario) {
-            cout << "Error: El usuario ya existe en esta empresa y departamento.\n";
-            return;
+        // Verificar si el usuario ya existe
+        NodoMatriz* actual = nodoEmpresa->abajo;
+        while (actual) {
+            if (actual->nombreUsuario == usuario) {
+                cout << "Error: El usuario ya existe en esta empresa y departamento.\n";
+                return;
+            }
+            actual = actual->abajo;
         }
-        actual = actual->abajo;
+
+        // Crear nuevo nodo de usuario
+        NodoMatriz* nuevoUsuario = new NodoMatriz(usuario, contrasena, departamento, empresa);
+
+        // Inserción en la columna de la empresa
+        nuevoUsuario->abajo = nodoEmpresa->abajo;
+        nodoEmpresa->abajo = nuevoUsuario;
+
+        // Inserción en la fila del departamento
+        NodoMatriz* actualDepartamento = nodoDepartamento->derecha;
+        NodoMatriz* anterior = nullptr;
+        while (actualDepartamento && actualDepartamento->empresa < empresa) {
+            anterior = actualDepartamento;
+            actualDepartamento = actualDepartamento->derecha;
+        }
+        if (anterior) {
+            anterior->derecha = nuevoUsuario;
+        } else {
+            nodoDepartamento->derecha = nuevoUsuario;
+        }
+        nuevoUsuario->derecha = actualDepartamento;
+
+        cout << "Usuario registrado exitosamente en la matriz dispersa.\n";
     }
 
-    // Crear nuevo usuario con su departamento
-    NodoMatriz* nuevoUsuario = new NodoMatriz(usuario, contrasena, departamento, empresa );
-    nuevoUsuario->abajo = nodoEmpresa->abajo;
-    nodoEmpresa->abajo = nuevoUsuario;
-
-    cout << "Usuario registrado exitosamente en la matriz dispersa.\n";
-}
-    // Buscar un usuario en la matriz
     NodoMatriz* buscarUsuario(string departamento, string empresa, string usuario) {
         NodoMatriz* nodoDepartamento = buscarEncabezado(departamento, true);
         if (!nodoDepartamento) return nullptr;
@@ -85,7 +100,7 @@ void insertarUsuario(string departamento, string empresa, string usuario, string
         if (!nodoEmpresa) return nullptr;
 
         NodoMatriz* actual = nodoEmpresa->abajo;
-        while (actual != nullptr) {
+        while (actual) {
             if (actual->nombreUsuario == usuario) {
                 return actual;
             }
@@ -94,177 +109,133 @@ void insertarUsuario(string departamento, string empresa, string usuario, string
 
         return nullptr;
     }
-    
 
-// Obtener encabezados horizontales (departamentos)
-    void obtenerEncabezadosHorizontales() {
-        NodoMatriz* actual = cabeza;
-        cout << "Encabezados horizontales (Departamentos):\n";
-        while (actual) {
-            cout << actual->nombreUsuario << " ";
-            actual = actual->derecha;
+    void generarReporteGraphviz() {
+        ofstream archivo("reporte_matriz.dot");
+        if (!archivo.is_open()) {
+            cout << "Error al crear el archivo de reporte.\n";
+            return;
         }
-        cout << endl;
-    }
 
-// Obtener grupo  según el departamento
-int obtenerGrupoDepartamento(string departamento) {
-    NodoMatriz* actual = cabeza;
-    int grupo = 2; // El grupo empieza en 2 después del nodo ADMIN
-    while (actual) {
-        if (actual->nombreUsuario == departamento) return grupo;
-        actual = actual->derecha;
-        grupo++;
-    }
-    return grupo; // Devuelve la posición del departamento
-}
+        archivo << "digraph MatrizDispersa {\n";
+        archivo << "  node [shape=box, style=filled, fontname=Arial];\n";
+        archivo << "  splines=ortho;\n";
+        archivo << "  rankdir=TB;\n";
 
-// Obtener fila según la empresa
-int obtenerFilaEmpresa(string empresa) {
-    NodoMatriz* actual = cabeza;
-    NodoMatriz* actualEmpresa = nullptr;
-    int fila = 2; // La fila empieza en 2 después del nodo ADMIN
-    while (actual) {
-        actualEmpresa = actual->abajo;
-        while (actualEmpresa) {
-            if (actualEmpresa->empresa == empresa) return fila;
-            actualEmpresa = actualEmpresa->abajo;
-            fila++;
-        }
-        actual = actual->derecha;
-    }
-    return fila; // Devuelve la posicion de la empresa
-}
+        // Nodo principal "ADMIN"
+        archivo << "  \"ADMIN\" [fillcolor=blue, group=1, pos=\"0,0!\"];\n";
 
-void generarReporteGraphviz() {
-    ofstream archivo("reporte_matriz.dot");
-    if (!archivo.is_open()) {
-        cout << "Error al crear el archivo de reporte.\n";
-        return;
-    }
+        // Generar encabezados de departamentos
+        NodoMatriz* actualDepartamento = cabeza;
+        NodoMatriz* anteriorDepartamento = nullptr;
+        int columnaDepartamento = 2;
+        while (actualDepartamento) {
+            archivo << "  \"" << actualDepartamento->nombreUsuario
+                    << "\" [fillcolor=lightyellow, group=" << columnaDepartamento
+                    << ", pos=\"" << columnaDepartamento << ",0!\"];\n";
 
-    archivo << "digraph MatrizDispersa {\n";
-    archivo << "  node [shape=box, style=filled, fontname=Arial];\n";
-    archivo << "  splines=ortho;\n";
-    archivo << "  rankdir=TB;\n";
-
-    // encabezado principal "ADMIN"
-    archivo << "  \"ADMIN\" [fillcolor=blue, group=1, pos=\"0,0!\"];\n";
-
-// 1. generar los encabezados de departamentos (primera fila)
-NodoMatriz* actualDepartamento = cabeza;
-NodoMatriz* anteriorDepartamento = nullptr;
-int columnaDepartamento = 2; // initialize columnaDepartamento
-while (actualDepartamento) {
-    archivo << "  \"" << actualDepartamento->nombreUsuario 
-            << "\" [fillcolor=lightyellow, group=" << columnaDepartamento 
-            << ", pos=\"" << columnaDepartamento << ",0!\"];\n";
-    
-    // Conectar departamentos desde ADMIN
-    if (anteriorDepartamento != nullptr) {
-        archivo << "  \"" << anteriorDepartamento->nombreUsuario 
-                << "\" -> \"" << actualDepartamento->nombreUsuario << "\";\n";
-    } else {
-        archivo << "  \"ADMIN\" -> \"" << actualDepartamento->nombreUsuario << "\";\n";
-    }
-    
-    anteriorDepartamento = actualDepartamento;
-    actualDepartamento = actualDepartamento->derecha;
-    columnaDepartamento++;
-}
-
-// 2. Generar los encabezados de empresas (primera columna)
-actualDepartamento = cabeza;
-NodoMatriz* anteriorEmpresa = nullptr;
-int filaEmpresa = 1;
-while (actualDepartamento) {
-    NodoMatriz* actualEmpresa = actualDepartamento->abajo;
-    while (actualEmpresa) {
-        archivo << "  \"" << actualEmpresa->empresa 
-                << "\" [fillcolor=orange, group=1, pos=\"0," << -filaEmpresa << "!\"];\n";
-        
-        // Conectar empresas desde ADMIN
-        if (anteriorEmpresa != nullptr) {
-            archivo << "  \"" << anteriorEmpresa->empresa 
-                    << "\" -> \"" << actualEmpresa->empresa << "\";\n";
-        } else {
-            archivo << "  \"ADMIN\" -> \"" << actualEmpresa->empresa << "\";\n";
-        }
-        
-        anteriorEmpresa = actualEmpresa;
-        actualEmpresa = actualEmpresa->abajo;
-        filaEmpresa++;
-    }
-    actualDepartamento = actualDepartamento->derecha;
-}
-
-// 3. Generar conexiones de usuarios 
-actualDepartamento = cabeza;
-while (actualDepartamento) {
-    NodoMatriz* actualEmpresa = actualDepartamento->abajo;
-    while (actualEmpresa) {
-        NodoMatriz* anteriorUsuario = nullptr;
-        NodoMatriz* actualUsuario = actualEmpresa->abajo;
-        
-        while (actualUsuario) {
-            // Conectar usuarios a su empresa
-            if (anteriorUsuario != nullptr) {
-                archivo << "  \"" << anteriorUsuario->nombreUsuario 
-                        << "\" -> \"" << actualUsuario->nombreUsuario << "\";\n";
+            // Conectar departamentos
+            if (anteriorDepartamento) {
+                archivo << "  \"" << anteriorDepartamento->nombreUsuario
+                        << "\" -> \"" << actualDepartamento->nombreUsuario << "\";\n";
             } else {
-                archivo << "  \"" << actualEmpresa->empresa 
-                        << "\" -> \"" << actualUsuario->nombreUsuario << "\";\n";
+                archivo << "  \"ADMIN\" -> \"" << actualDepartamento->nombreUsuario << "\";\n";
             }
-            
-            anteriorUsuario = actualUsuario;
-            actualUsuario = actualUsuario->abajo;
+
+            anteriorDepartamento = actualDepartamento;
+            actualDepartamento = actualDepartamento->derecha;
+            columnaDepartamento++;
         }
-        
-        actualEmpresa = actualEmpresa->abajo;
+
+        // Generar encabezados de empresas
+        actualDepartamento = cabeza;
+        NodoMatriz* anteriorEmpresa = nullptr;
+        int filaEmpresa = 1;
+        while (actualDepartamento) {
+            NodoMatriz* actualEmpresa = actualDepartamento->abajo;
+            while (actualEmpresa) {
+                archivo << "  \"" << actualEmpresa->empresa
+                        << "\" [fillcolor=orange, group=1, pos=\"0," << -filaEmpresa << "!\"];\n";
+
+                // Conectar empresas
+                if (anteriorEmpresa) {
+                    archivo << "  \"" << anteriorEmpresa->empresa
+                            << "\" -> \"" << actualEmpresa->empresa << "\";\n";
+                } else {
+                    archivo << "  \"ADMIN\" -> \"" << actualEmpresa->empresa << "\";\n";
+                }
+
+                anteriorEmpresa = actualEmpresa;
+                actualEmpresa = actualEmpresa->abajo;
+                filaEmpresa++;
+            }
+            actualDepartamento = actualDepartamento->derecha;
+        }
+
+        // Generar nodos de usuarios
+        actualDepartamento = cabeza;
+        while (actualDepartamento) {
+            NodoMatriz* actualEmpresa = actualDepartamento->abajo;
+            while (actualEmpresa) {
+                NodoMatriz* actualUsuario = actualEmpresa->abajo;
+                while (actualUsuario) {
+                    // Nodo de usuario
+                    archivo << "  \"" << actualUsuario->nombreUsuario
+                            << "\" [fillcolor=green, group=" << columnaDepartamento
+                            << ", pos=\"" << columnaDepartamento << "," << -filaEmpresa << "!\"];\n";
+
+                    // Conexión con su empresa
+                    archivo << "  \"" << actualEmpresa->empresa
+                            << "\" -> \"" << actualUsuario->nombreUsuario << "\" [constraint=false];\n";
+
+                    actualUsuario = actualUsuario->abajo;
+                }
+                actualEmpresa = actualEmpresa->abajo;
+            }
+            actualDepartamento = actualDepartamento->derecha;
+        }
+
+        // Agrupar nodos de la primera fila
+        archivo << "  { rank=same; \"ADMIN\" ";
+        actualDepartamento = cabeza;
+        while (actualDepartamento) {
+            archivo << "\"" << actualDepartamento->nombreUsuario << "\" ";
+            actualDepartamento = actualDepartamento->derecha;
+        }
+        archivo << "}\n";
+
+        archivo << "}\n";
+        archivo.close();
+
+        system("dot -Tpng -Kfdp reporte_matriz.dot -o reporte_matriz.png");
+        cout << "Reporte generado como 'reporte_matriz.png'.\n";
     }
-    
-    actualDepartamento = actualDepartamento->derecha;
-}
-    // Agrupar los nodos en la primera fila y columna
-    archivo << "  { rank=same; \"ADMIN\" ";
-    actualDepartamento = cabeza;
-    while (actualDepartamento) {
-        archivo << "\"" << actualDepartamento->nombreUsuario << "\" ";
-        actualDepartamento = actualDepartamento->derecha;
-    }
-    archivo << "}\n";
-
-    archivo << "}\n";
-    archivo.close();
-
-    system("dot -Tpng -Kfdp reporte_matriz.dot -o reporte_matriz.png");
-    cout << "Reporte generado como 'reporte_matriz.png'.\n";
-}
 
 
-public:
-    // obtener o insertar un encabezado (horizontal o vertical)
+private:
     NodoMatriz* obtenerOInsertarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
         NodoMatriz** referencia = esHorizontal ? &cabeza : &base->derecha;
 
-        while (*referencia != nullptr && (*referencia)->nombreUsuario < nombre) {
+        while (*referencia && (*referencia)->nombreUsuario < nombre) {
             referencia = esHorizontal ? &((*referencia)->derecha) : &((*referencia)->abajo);
         }
 
-        if (*referencia == nullptr || (*referencia)->nombreUsuario != nombre) {
+        if (!(*referencia) || (*referencia)->nombreUsuario != nombre) {
             NodoMatriz* nuevoEncabezado = new NodoMatriz(nombre, "");
-            nuevoEncabezado->derecha = esHorizontal ? *referencia : nullptr;
-            nuevoEncabezado->abajo = esHorizontal ? nullptr : *referencia;
+            if (esHorizontal) {
+                nuevoEncabezado->derecha = *referencia;
+            } else {
+                nuevoEncabezado->abajo = *referencia;
+            }
             *referencia = nuevoEncabezado;
         }
 
         return *referencia;
     }
 
-    // buscar un encabezado (horizontal o vertical)
     NodoMatriz* buscarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {
         NodoMatriz* actual = esHorizontal ? cabeza : base->derecha;
-        while (actual != nullptr) {
+        while (actual) {
             if (actual->nombreUsuario == nombre) {
                 return actual;
             }
@@ -273,6 +244,7 @@ public:
         return nullptr;
     }
 };
+
 // -----------------------------------------------------------------------------------------------------------------
 // nodo para un nuevo activo en el arbol avl
 NodoAVL* crearNodoAVL(string id, string nombre, string descripcion, int tiempoMaximo) {
