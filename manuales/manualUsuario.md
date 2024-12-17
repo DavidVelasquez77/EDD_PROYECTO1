@@ -92,7 +92,7 @@ El administrador tiene acceso a las siguientes opciones:
 
 2. **Generar Reportes**
    - Reporte de Matriz Dispersa: muestra la matriz dispersa en ese momento
-   - ![alt text](image-3.png)
+   - ![alt text](image-21.png)
    - Reporte de Activos Disponibles por Departamento: pedira el departamento a filrtrar y muestra el avl de los usuarios, si esta en verde es que esta disponible pero si esta en rojo es que esta rentado
    - ![alt text](image-11.png)
    - Reporte de Activos Disponibles por Empresa:  pedira la empresa  a filrtrar y muestra el avl de los usuarios, si esta en verde es que esta disponible pero si esta en rojo es que esta rentado

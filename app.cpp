@@ -149,7 +149,7 @@ void generarReporteGraphviz() {
     archivo << "  rankdir=TB;\n";
 
     // encabezado principal "ADMIN"
-    archivo << "  \"ADMIN\" [fillcolor=gray, group=1, pos=\"0,0!\"];\n";
+    archivo << "  \"ADMIN\" [fillcolor=blue, group=1, pos=\"0,0!\"];\n";
 
 // 1. generar los encabezados de departamentos (primera fila)
 NodoMatriz* actualDepartamento = cabeza;
@@ -157,7 +157,7 @@ NodoMatriz* anteriorDepartamento = nullptr;
 int columnaDepartamento = 2; // initialize columnaDepartamento
 while (actualDepartamento) {
     archivo << "  \"" << actualDepartamento->nombreUsuario 
-            << "\" [fillcolor=lightblue, group=" << columnaDepartamento 
+            << "\" [fillcolor=lightyellow, group=" << columnaDepartamento 
             << ", pos=\"" << columnaDepartamento << ",0!\"];\n";
     
     // Conectar departamentos desde ADMIN
@@ -181,7 +181,7 @@ while (actualDepartamento) {
     NodoMatriz* actualEmpresa = actualDepartamento->abajo;
     while (actualEmpresa) {
         archivo << "  \"" << actualEmpresa->empresa 
-                << "\" [fillcolor=lightgreen, group=1, pos=\"0," << -filaEmpresa << "!\"];\n";
+                << "\" [fillcolor=orange, group=1, pos=\"0," << -filaEmpresa << "!\"];\n";
         
         // Conectar empresas desde ADMIN
         if (anteriorEmpresa != nullptr) {
