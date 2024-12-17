@@ -110,7 +110,38 @@ public:
         return nullptr;
     }
 
+void imprimirDetallesUsuarios() {
+    cout << "\n===== DETALLES DE USUARIOS EN LA MATRIZ DISPERSA =====\n";
+    
+    NodoMatriz* actualDepartamento = cabeza;
+    int contadorUsuarios = 0;
+
+    while (actualDepartamento) {
+        NodoMatriz* actualEmpresa = actualDepartamento->derecha;
+        while (actualEmpresa) {
+            NodoMatriz* actualUsuario = actualEmpresa->abajo;
+            while (actualUsuario) {
+                contadorUsuarios++;
+                cout << "-------------------------------------------\n";
+                cout << "Usuario #" << contadorUsuarios << ":\n";
+                cout << "Nombre de Usuario: " << actualUsuario->nombreUsuario << endl;
+                cout << "Empresa: " << actualUsuario->empresa << endl;
+                cout << "Departamento: " << actualUsuario->departamento << endl;
+                cout << "Contrasena: " << actualUsuario->contrasena << endl;
+                
+                actualUsuario = actualUsuario->abajo;
+            }
+            actualEmpresa = actualEmpresa->derecha;
+        }
+        actualDepartamento = actualDepartamento->derecha;
+    }
+
+    cout << "\nTotal de Usuarios: " << contadorUsuarios << endl;
+    cout << "=================================================\n";
+}
     void generarReporteGraphviz() {
+         
+        imprimirDetallesUsuarios();
         ofstream archivo("reporte_matriz.dot");
         if (!archivo.is_open()) {
             cout << "Error al crear el archivo de reporte.\n";
