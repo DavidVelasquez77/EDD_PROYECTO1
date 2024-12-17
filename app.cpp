@@ -116,15 +116,16 @@ public:
             cout << "Error al crear el archivo de reporte.\n";
             return;
         }
-
+    
         archivo << "digraph MatrizDispersa {\n";
         archivo << "  node [shape=box, style=filled, fontname=Arial];\n";
         archivo << "  splines=ortho;\n";
         archivo << "  rankdir=TB;\n";
-
+        archivo << "  edge [dir=both];\n";  // Hacer todas las aristas bidireccionales por defecto
+    
         // Nodo principal "ADMIN"
         archivo << "  \"ADMIN\" [fillcolor=blue, group=1, pos=\"0,0!\"];\n";
-
+    
         // Generar encabezados de departamentos
         NodoMatriz* actualDepartamento = cabeza;
         NodoMatriz* anteriorDepartamento = nullptr;
@@ -133,20 +134,20 @@ public:
             archivo << "  \"" << actualDepartamento->nombreUsuario
                     << "\" [fillcolor=lightyellow, group=" << columnaDepartamento
                     << ", pos=\"" << columnaDepartamento << ",0!\"];\n";
-
-            // Conectar departamentos
+    
+            // Conectar departamentos con flechas bidireccionales
             if (anteriorDepartamento) {
                 archivo << "  \"" << anteriorDepartamento->nombreUsuario
-                        << "\" -> \"" << actualDepartamento->nombreUsuario << "\";\n";
+                        << "\" -> \"" << actualDepartamento->nombreUsuario << "\" [dir=both];\n";
             } else {
-                archivo << "  \"ADMIN\" -> \"" << actualDepartamento->nombreUsuario << "\";\n";
+                archivo << "  \"ADMIN\" -> \"" << actualDepartamento->nombreUsuario << "\" [dir=both];\n";
             }
-
+    
             anteriorDepartamento = actualDepartamento;
             actualDepartamento = actualDepartamento->derecha;
             columnaDepartamento++;
         }
-
+    
         // Generar encabezados de empresas
         actualDepartamento = cabeza;
         NodoMatriz* anteriorEmpresa = nullptr;
@@ -156,22 +157,22 @@ public:
             while (actualEmpresa) {
                 archivo << "  \"" << actualEmpresa->empresa
                         << "\" [fillcolor=orange, group=1, pos=\"0," << -filaEmpresa << "!\"];\n";
-
-                // Conectar empresas
+    
+                // Conectar empresas con flechas bidireccionales
                 if (anteriorEmpresa) {
                     archivo << "  \"" << anteriorEmpresa->empresa
-                            << "\" -> \"" << actualEmpresa->empresa << "\";\n";
+                            << "\" -> \"" << actualEmpresa->empresa << "\" [dir=both];\n";
                 } else {
-                    archivo << "  \"ADMIN\" -> \"" << actualEmpresa->empresa << "\";\n";
+                    archivo << "  \"ADMIN\" -> \"" << actualEmpresa->empresa << "\" [dir=both];\n";
                 }
-
+    
                 anteriorEmpresa = actualEmpresa;
                 actualEmpresa = actualEmpresa->abajo;
                 filaEmpresa++;
             }
             actualDepartamento = actualDepartamento->derecha;
         }
-
+    
         // Generar nodos de usuarios
         actualDepartamento = cabeza;
         while (actualDepartamento) {
@@ -179,22 +180,22 @@ public:
             while (actualEmpresa) {
                 NodoMatriz* actualUsuario = actualEmpresa->abajo;
                 while (actualUsuario) {
-                    // Nodo de usuario
                     archivo << "  \"" << actualUsuario->nombreUsuario
                             << "\" [fillcolor=green, group=" << columnaDepartamento
                             << ", pos=\"" << columnaDepartamento << "," << -filaEmpresa << "!\"];\n";
-
-                    // Conexión con su empresa
+    
+                    // Conexión bidireccional con su empresa
                     archivo << "  \"" << actualEmpresa->empresa
-                            << "\" -> \"" << actualUsuario->nombreUsuario << "\" [constraint=false];\n";
-
+                            << "\" -> \"" << actualUsuario->nombreUsuario 
+                            << "\" [constraint=false, dir=both];\n";
+    
                     actualUsuario = actualUsuario->abajo;
                 }
                 actualEmpresa = actualEmpresa->abajo;
             }
             actualDepartamento = actualDepartamento->derecha;
         }
-
+    
         // Agrupar nodos de la primera fila
         archivo << "  { rank=same; \"ADMIN\" ";
         actualDepartamento = cabeza;
@@ -203,14 +204,13 @@ public:
             actualDepartamento = actualDepartamento->derecha;
         }
         archivo << "}\n";
-
+    
         archivo << "}\n";
         archivo.close();
-
+    
         system("dot -Tpng -Kfdp reporte_matriz.dot -o reporte_matriz.png");
         cout << "Reporte generado como 'reporte_matriz.png'.\n";
     }
-
 
 private:
     NodoMatriz* obtenerOInsertarEncabezado(string nombre, bool esHorizontal, NodoMatriz* base = nullptr) {

@@ -2,22 +2,23 @@ digraph MatrizDispersa {
   node [shape=box, style=filled, fontname=Arial];
   splines=ortho;
   rankdir=TB;
+  edge [dir=both];
   "ADMIN" [fillcolor=blue, group=1, pos="0,0!"];
   "guatemla" [fillcolor=lightyellow, group=2, pos="2,0!"];
-  "ADMIN" -> "guatemla";
+  "ADMIN" -> "guatemla" [dir=both];
   "claro" [fillcolor=lightyellow, group=3, pos="3,0!"];
-  "guatemla" -> "claro";
+  "guatemla" -> "claro" [dir=both];
   "diego" [fillcolor=lightyellow, group=4, pos="4,0!"];
-  "claro" -> "diego";
+  "claro" -> "diego" [dir=both];
   "solola" [fillcolor=lightyellow, group=5, pos="5,0!"];
-  "diego" -> "solola";
+  "diego" -> "solola" [dir=both];
   "tigo" [fillcolor=lightyellow, group=6, pos="6,0!"];
-  "solola" -> "tigo";
+  "solola" -> "tigo" [dir=both];
   "emilio" [fillcolor=lightyellow, group=7, pos="7,0!"];
-  "tigo" -> "emilio";
+  "tigo" -> "emilio" [dir=both];
   "claro" [fillcolor=orange, group=1, pos="0,-1!"];
-  "ADMIN" -> "claro";
+  "ADMIN" -> "claro" [dir=both];
   "tigo" [fillcolor=orange, group=1, pos="0,-2!"];
-  "claro" -> "tigo";
+  "claro" -> "tigo" [dir=both];
   { rank=same; "ADMIN" "guatemla" "claro" "diego" "solola" "tigo" "emilio" }
 }
